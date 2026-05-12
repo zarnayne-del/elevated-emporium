@@ -69,6 +69,7 @@ export type Database = {
           id: string
           notified_at: string | null
           order_number: string
+          payment_screenshot_url: string | null
           shipping_address: string
           shipping_cents: number
           shipping_city: string
@@ -85,6 +86,7 @@ export type Database = {
           id?: string
           notified_at?: string | null
           order_number?: string
+          payment_screenshot_url?: string | null
           shipping_address: string
           shipping_cents?: number
           shipping_city: string
@@ -101,6 +103,7 @@ export type Database = {
           id?: string
           notified_at?: string | null
           order_number?: string
+          payment_screenshot_url?: string | null
           shipping_address?: string
           shipping_cents?: number
           shipping_city?: string
@@ -121,6 +124,7 @@ export type Database = {
           description: string
           id: string
           image_path: string
+          image_url: string | null
           in_stock: boolean
           name: string
           price_cents: number
@@ -135,6 +139,7 @@ export type Database = {
           description?: string
           id?: string
           image_path?: string
+          image_url?: string | null
           in_stock?: boolean
           name: string
           price_cents: number
@@ -149,6 +154,7 @@ export type Database = {
           description?: string
           id?: string
           image_path?: string
+          image_url?: string | null
           in_stock?: boolean
           name?: string
           price_cents?: number
