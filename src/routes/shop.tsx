@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteLayout } from "@/components/SiteLayout";
-import { type Product, productImages, formatPrice, tileBg } from "@/lib/products";
+import { type Product, productImage, formatPrice, tileBg } from "@/lib/products";
 
 const search = z.object({
   category: z.enum(["Flower", "Streetwear", "Accessories"]).optional(),
@@ -90,7 +90,7 @@ function ShopPage() {
             >
               <div className={`aspect-square ${tileBg(p.color)} border-2 border-forest mb-4 overflow-hidden`}>
                 <img
-                  src={productImages[p.slug]}
+                  src={productImage(p)}
                   alt={p.name}
                   loading="lazy"
                   width={800}

@@ -2,7 +2,7 @@ import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-ro
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteLayout } from "@/components/SiteLayout";
-import { type Product, productImages, formatPrice, tileBg } from "@/lib/products";
+import { type Product, productImage, formatPrice, tileBg } from "@/lib/products";
 import { addToCart } from "@/lib/cart-store";
 import { toast } from "sonner";
 
@@ -74,7 +74,7 @@ function ProductPage() {
       <article className="grid grid-cols-1 lg:grid-cols-2 border-b-2 border-forest">
         <div className={`${tileBg(product.color)} border-r-0 lg:border-r-2 border-forest flex items-center justify-center p-8 md:p-16`}>
           <img
-            src={productImages[product.slug]}
+            src={productImage(product)}
             alt={product.name}
             width={800}
             height={800}
