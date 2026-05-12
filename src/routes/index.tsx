@@ -2,8 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteLayout } from "@/components/SiteLayout";
-import { type Product, productImages, formatPrice, tileBg } from "@/lib/products";
-import heroVector from "@/assets/hero-vector.jpg";
+import { type Product, productImage, formatPrice, tileBg } from "@/lib/products";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
@@ -36,39 +35,24 @@ function HomePage() {
   return (
     <SiteLayout>
       {/* Hero */}
-      <header className="grid grid-cols-1 lg:grid-cols-12 border-b-2 border-forest">
-        <div className="lg:col-span-7 p-8 md:p-16 flex flex-col justify-center">
-          <span className="label-mono text-safety mb-6">
-            Collection 01 / SS24
-          </span>
-          <h1 className="text-6xl md:text-7xl lg:text-8xl font-display font-bold uppercase leading-[0.85] tracking-tighter mb-8">
-            Elevated<br />Botanics
-          </h1>
-          <p className="max-w-md text-base md:text-lg leading-relaxed mb-10 text-forest/80">
-            A symbiotic fusion of premium cultivars and architectural
-            silhouettes. Designed for the high-functioning aestheticist.
-          </p>
-          <div className="flex flex-wrap gap-4">
-            <Link
-              to="/shop"
-              search={{ category: "Flower" }}
-              className="btn-forest"
-            >
-              Shop Flower
-            </Link>
-            <Link to="/shop" search={{ category: "Streetwear" }} className="btn-outline">
-              Apparel
-            </Link>
-          </div>
-        </div>
-        <div className="lg:col-span-5 bg-forest border-l-0 lg:border-l-2 border-t-2 lg:border-t-0 border-forest flex items-center justify-center p-8 md:p-12">
-          <img
-            src={heroVector}
-            alt="Flat vector composition of a cannabis leaf and hoodie silhouette"
-            width={1024}
-            height={1280}
-            className="w-full max-w-md h-auto"
-          />
+      <header className="border-b-2 border-forest p-8 md:p-20 lg:p-28">
+        <span className="label-mono text-safety mb-6 block">
+          Collection 01 / SS24
+        </span>
+        <h1 className="text-6xl md:text-8xl lg:text-[10rem] font-display font-bold uppercase leading-[0.85] tracking-tighter mb-8">
+          Elevated<br />Botanics
+        </h1>
+        <p className="max-w-xl text-base md:text-lg leading-relaxed mb-10 text-forest/80">
+          A symbiotic fusion of premium cultivars and architectural
+          silhouettes. Designed for the high-functioning aestheticist.
+        </p>
+        <div className="flex flex-wrap gap-4">
+          <Link to="/shop" search={{ category: "Flower" }} className="btn-forest">
+            Shop Flower
+          </Link>
+          <Link to="/shop" search={{ category: "Streetwear" }} className="btn-outline">
+            Apparel
+          </Link>
         </div>
       </header>
 
@@ -99,7 +83,7 @@ function HomePage() {
             >
               <div className={`aspect-[3/4] ${tileBg(p.color)} border-2 border-forest mb-4 overflow-hidden`}>
                 <img
-                  src={productImages[p.slug]}
+                  src={productImage(p)}
                   alt={p.name}
                   loading="lazy"
                   width={800}

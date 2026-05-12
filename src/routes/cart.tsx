@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/SiteLayout";
 import { useCart, setQuantity, removeFromCart } from "@/lib/cart-store";
 import { formatPrice, productImages } from "@/lib/products";
+// productImages used for legacy local slug images; cart items keep slug only
 
 export const Route = createFileRoute("/cart")({
   component: CartPage,

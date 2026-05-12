@@ -9,6 +9,7 @@ const CheckoutSchema = z.object({
   shipping_city: z.string().trim().min(1).max(100),
   shipping_zip: z.string().trim().min(1).max(20),
   shipping_country: z.string().trim().min(2).max(60),
+  payment_screenshot_url: z.string().trim().url().max(500),
   items: z
     .array(
       z.object({
@@ -67,6 +68,7 @@ export const placeOrder = createServerFn({ method: "POST" })
         subtotal_cents,
         shipping_cents,
         total_cents,
+        payment_screenshot_url: data.payment_screenshot_url,
       })
       .select("id, order_number, total_cents")
       .single();
