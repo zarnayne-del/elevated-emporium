@@ -63,7 +63,7 @@ function ShopPage() {
               key={c}
               onClick={() =>
                 navigate({
-                  search: c === "All" ? {} : { category: c as Product["category"] as "Flower" | "Streetwear" | "Accessories" },
+                  search: c === "All" ? {} : { category: c },
                 })
               }
               className={`px-5 py-2 border-2 border-forest font-display uppercase text-[11px] tracking-[0.2em] transition-colors cursor-pointer ${
