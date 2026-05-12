@@ -25,10 +25,15 @@ export type Product = {
   color: string;
   in_stock: boolean;
   sort_order: number;
+  image_url?: string | null;
+  image_path?: string | null;
 };
 
 export const formatPrice = (cents: number) =>
   `$${(cents / 100).toFixed(2)}`;
+
+export const productImage = (p: Pick<Product, "slug" | "image_url" | "image_path">) =>
+  p.image_url || p.image_path || productImages[p.slug] || "";
 
 export const tileBg = (color: string) => {
   switch (color) {
