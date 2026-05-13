@@ -10,7 +10,8 @@ export const Route = createFileRoute("/admin/")({
 type Order = {
   id: string;
   order_number: string;
-  email: string;
+  email: string | null;
+  phone_number: string | null;
   shipping_name: string;
   shipping_city: string;
   shipping_country: string;
