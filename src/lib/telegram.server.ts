@@ -11,7 +11,7 @@ export async function notifyOrder(orderId: string) {
   const { data: order, error: orderErr } = await supabaseAdmin
     .from("orders")
     .select(
-      "id, order_number, email, shipping_name, shipping_address, shipping_city, shipping_zip, shipping_country, subtotal_cents, shipping_cents, total_cents, status, payment_screenshot_url"
+      "id, order_number, email, phone_number, shipping_name, shipping_address, shipping_city, shipping_zip, shipping_country, subtotal_cents, shipping_cents, total_cents, status, payment_screenshot_url"
     )
     .eq("id", orderId)
     .single();
