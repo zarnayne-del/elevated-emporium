@@ -30,21 +30,27 @@ export const placeOrder = createServerFn({ method: "POST" })
       .in("id", ids);
 
     if (prodErr) throw new Error("Failed to load products");
-    if (!products || products.length !== ids.length) {
-      throw new Error("One or more items are unavailable");
-    }
 
-    const priced = data.items.map((it) => {
-      const p = products.find((p) => p.id === it.product_id)!;
-      if (!p.in_stock) throw new Error(`${p.name} is out of stock`);
-      return {
-        product_id: p.id,
-        product_slug: p.slug,
-        product_name: p.name,
-        unit_price_cents: p.price_cents,
-        quantity: it.quantity,
-      };
-    });
+    const priced = data.items
+      .map((it) => {
+        const p = products?.find((p) => p.id === it.product_id);
+        if (!p) return null;
+        if (!p.in_stock) throw new Error(`${p.name} is out of stock`);
+        return {
+          product_id: p.id,
+          product_slug: p.slug,
+          product_name: p.name,
+          unit_price_cents: p.price_cents,
+          quantity: it.quantity,
+        };
+      })
+      .filter((x): x is NonNullable<typeof x> => x !== null);
+
+    if (priced.length === 0) {
+      throw new Error(
+        "Your cart items are no longer available. Please clear your cart and add fresh items from the shop."
+      );
+    }
 
     const subtotal_cents = priced.reduce(
       (s, i) => s + i.unit_price_cents * i.quantity,
