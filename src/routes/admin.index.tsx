@@ -10,7 +10,8 @@ export const Route = createFileRoute("/admin/")({
 type Order = {
   id: string;
   order_number: string;
-  email: string;
+  email: string | null;
+  phone_number: string | null;
   shipping_name: string;
   shipping_city: string;
   shipping_country: string;
@@ -26,7 +27,7 @@ function AdminOrdersPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("orders")
-        .select("id, order_number, email, shipping_name, shipping_city, shipping_country, total_cents, status, payment_screenshot_url, created_at")
+        .select("id, order_number, email, phone_number, shipping_name, shipping_city, shipping_country, total_cents, status, payment_screenshot_url, created_at")
         .order("created_at", { ascending: false });
       if (error) throw error;
       return (data ?? []) as Order[];
@@ -67,7 +68,7 @@ function AdminOrdersPage() {
                   <td className="px-4 py-3 font-display tracking-wider">{o.order_number}</td>
                   <td className="px-4 py-3">
                     <div className="font-semibold">{o.shipping_name}</div>
-                    <div className="label-mono text-forest/60">{o.email}</div>
+                    <div className="label-mono text-forest/60">{o.phone_number ?? o.email ?? "—"}</div>
                   </td>
                   <td className="px-4 py-3">
                     {o.shipping_city}, {o.shipping_country}

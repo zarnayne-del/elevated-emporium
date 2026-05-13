@@ -4,7 +4,7 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { notifyOrder } from "@/lib/telegram.server";
 
 const CheckoutSchema = z.object({
-  email: z.string().trim().email().max(255),
+  phone_number: z.string().trim().min(5).max(32).regex(/^[+\d\s().-]+$/, "Invalid phone number"),
   shipping_name: z.string().trim().min(1).max(120),
   shipping_address: z.string().trim().min(1).max(255),
   shipping_city: z.string().trim().min(1).max(100),
@@ -62,7 +62,7 @@ export const placeOrder = createServerFn({ method: "POST" })
     const { data: order, error: orderErr } = await supabaseAdmin
       .from("orders")
       .insert({
-        email: data.email,
+        phone_number: data.phone_number,
         shipping_name: data.shipping_name,
         shipping_address: data.shipping_address,
         shipping_city: data.shipping_city,

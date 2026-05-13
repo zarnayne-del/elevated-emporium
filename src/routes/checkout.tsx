@@ -17,7 +17,12 @@ export const Route = createFileRoute("/checkout")({
 });
 
 const ShippingSchema = z.object({
-  email: z.string().trim().email("Enter a valid email").max(255),
+  phone_number: z
+    .string()
+    .trim()
+    .min(5, "Enter a valid phone number")
+    .max(32)
+    .regex(/^[+\d\s().-]+$/, "Invalid phone number"),
   shipping_name: z.string().trim().min(1, "Required").max(120),
   shipping_address: z.string().trim().min(1, "Required").max(255),
   shipping_city: z.string().trim().min(1, "Required").max(100),
@@ -120,7 +125,8 @@ function CheckoutPage() {
           <div className="lg:col-span-2 lg:border-r-2 border-forest p-6 md:p-12 space-y-8">
             <fieldset className="space-y-5">
               <legend className="label-mono text-safety mb-4">Contact</legend>
-              <Field name="email" label="Email" type="email" required defaultValue={shipping?.email} autoComplete="email" />
+              <Field name="phone_number" label="Phone Number" type="tel" required defaultValue={shipping?.phone_number} autoComplete="tel" />
+              <p className="label-mono text-forest/50">We&apos;ll contact you on this number for delivery updates.</p>
             </fieldset>
             <fieldset className="space-y-5">
               <legend className="label-mono text-safety mb-4">Shipping</legend>

@@ -65,11 +65,12 @@ export type Database = {
       orders: {
         Row: {
           created_at: string
-          email: string
+          email: string | null
           id: string
           notified_at: string | null
           order_number: string
           payment_screenshot_url: string | null
+          phone_number: string | null
           shipping_address: string
           shipping_cents: number
           shipping_city: string
@@ -82,11 +83,12 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          email: string
+          email?: string | null
           id?: string
           notified_at?: string | null
           order_number?: string
           payment_screenshot_url?: string | null
+          phone_number?: string | null
           shipping_address: string
           shipping_cents?: number
           shipping_city: string
@@ -99,11 +101,12 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          email?: string
+          email?: string | null
           id?: string
           notified_at?: string | null
           order_number?: string
           payment_screenshot_url?: string | null
+          phone_number?: string | null
           shipping_address?: string
           shipping_cents?: number
           shipping_city?: string
