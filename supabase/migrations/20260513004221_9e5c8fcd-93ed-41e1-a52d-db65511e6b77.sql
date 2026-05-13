@@ -1,0 +1,1 @@
+ALTER TABLE public.orders ALTER COLUMN shipping_zip DROP NOT NULL;

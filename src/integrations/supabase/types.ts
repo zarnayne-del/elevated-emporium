@@ -75,7 +75,7 @@ export type Database = {
           shipping_city: string
           shipping_country: string
           shipping_name: string
-          shipping_zip: string
+          shipping_zip: string | null
           status: string
           subtotal_cents: number
           total_cents: number
@@ -92,7 +92,7 @@ export type Database = {
           shipping_city: string
           shipping_country?: string
           shipping_name: string
-          shipping_zip: string
+          shipping_zip?: string | null
           status?: string
           subtotal_cents: number
           total_cents: number
@@ -109,7 +109,7 @@ export type Database = {
           shipping_city?: string
           shipping_country?: string
           shipping_name?: string
-          shipping_zip?: string
+          shipping_zip?: string | null
           status?: string
           subtotal_cents?: number
           total_cents?: number

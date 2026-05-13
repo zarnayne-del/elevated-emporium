@@ -1,14 +1,13 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { notifyOrder } from "@/lib/telegram.server";
 
 const CheckoutSchema = z.object({
   email: z.string().trim().email().max(255),
   shipping_name: z.string().trim().min(1).max(120),
   shipping_address: z.string().trim().min(1).max(255),
   shipping_city: z.string().trim().min(1).max(100),
-  shipping_zip: z.string().trim().min(1).max(20),
-  shipping_country: z.string().trim().min(2).max(60),
   payment_screenshot_url: z.string().trim().url().max(500),
   items: z
     .array(
@@ -24,7 +23,6 @@ const CheckoutSchema = z.object({
 export const placeOrder = createServerFn({ method: "POST" })
   .inputValidator((input) => CheckoutSchema.parse(input))
   .handler(async ({ data }) => {
-    // Re-price server-side (don't trust client prices)
     const ids = data.items.map((i) => i.product_id);
     const { data: products, error: prodErr } = await supabaseAdmin
       .from("products")
@@ -55,7 +53,6 @@ export const placeOrder = createServerFn({ method: "POST" })
     const shipping_cents = subtotal_cents >= 15000 ? 0 : 800;
     const total_cents = subtotal_cents + shipping_cents;
 
-    // Insert order — every NOT NULL column has a value or DB default
     const { data: order, error: orderErr } = await supabaseAdmin
       .from("orders")
       .insert({
@@ -63,8 +60,6 @@ export const placeOrder = createServerFn({ method: "POST" })
         shipping_name: data.shipping_name,
         shipping_address: data.shipping_address,
         shipping_city: data.shipping_city,
-        shipping_zip: data.shipping_zip,
-        shipping_country: data.shipping_country,
         subtotal_cents,
         shipping_cents,
         total_cents,
@@ -85,58 +80,15 @@ export const placeOrder = createServerFn({ method: "POST" })
 
     if (itemsErr) {
       console.error("Order items insert failed:", itemsErr);
-      // Roll back the order
       await supabaseAdmin.from("orders").delete().eq("id", order.id);
       throw new Error("Could not create order items");
     }
 
-    // Telegram notification (non-blocking failure)
+    // Fire Telegram notification (failure is logged but does not break checkout)
     try {
-      const token = process.env.TELEGRAM_BOT_TOKEN;
-      const chatId = process.env.TELEGRAM_CHAT_ID;
-      if (token && chatId) {
-        const lines = priced.map(
-          (p) =>
-            `• ${p.quantity}× ${p.product_name} — $${(
-              (p.unit_price_cents * p.quantity) /
-              100
-            ).toFixed(2)}`
-        );
-        const message =
-          `🟢 NEW ORDER ${order.order_number}\n` +
-          `${data.shipping_name} <${data.email}>\n` +
-          `${data.shipping_address}, ${data.shipping_city} ${data.shipping_zip} ${data.shipping_country}\n\n` +
-          lines.join("\n") +
-          `\n\nSubtotal: $${(subtotal_cents / 100).toFixed(2)}` +
-          `\nShipping: $${(shipping_cents / 100).toFixed(2)}` +
-          `\nTotal: $${(total_cents / 100).toFixed(2)}`;
-
-        const res = await fetch(
-          `https://api.telegram.org/bot${token}/sendMessage`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              chat_id: chatId,
-              text: message,
-              parse_mode: "HTML",
-            }),
-          }
-        );
-        if (res.ok) {
-          await supabaseAdmin
-            .from("orders")
-            .update({ notified_at: new Date().toISOString(), status: "confirmed" })
-            .eq("id", order.id);
-        } else {
-          const body = await res.text();
-          console.error("Telegram send failed:", res.status, body);
-        }
-      } else {
-        console.warn("Telegram env vars missing — skipping notification");
-      }
+      await notifyOrder(order.id);
     } catch (e) {
-      console.error("Telegram notification error:", e);
+      console.error("notifyOrder failed:", e);
     }
 
     return {
@@ -144,4 +96,48 @@ export const placeOrder = createServerFn({ method: "POST" })
       order_number: order.order_number,
       total_cents: order.total_cents,
     };
+  });
+
+const TrackSchema = z.object({
+  reference: z.string().trim().min(3).max(64),
+});
+
+export const trackOrder = createServerFn({ method: "POST" })
+  .inputValidator((input) => TrackSchema.parse(input))
+  .handler(async ({ data }) => {
+    const ref = data.reference.trim();
+    // Match by order_number (e.g. KC-12345) or by short id prefix
+    const upper = ref.toUpperCase();
+    const isUuidish = /^[0-9a-fA-F-]{8,}$/.test(ref);
+
+    let query = supabaseAdmin
+      .from("orders")
+      .select(
+        "id, order_number, status, shipping_name, shipping_city, total_cents, created_at, notified_at"
+      )
+      .limit(1);
+
+    if (upper.startsWith("KC-")) {
+      query = query.eq("order_number", upper);
+    } else if (isUuidish) {
+      // Try id first
+      const { data: byId } = await supabaseAdmin
+        .from("orders")
+        .select(
+          "id, order_number, status, shipping_name, shipping_city, total_cents, created_at, notified_at"
+        )
+        .ilike("id", `${ref.toLowerCase()}%`)
+        .limit(1);
+      if (byId && byId.length > 0) return { order: byId[0] };
+      query = query.eq("order_number", `KC-${ref}`);
+    } else {
+      query = query.eq("order_number", `KC-${ref}`);
+    }
+
+    const { data: rows, error } = await query;
+    if (error) {
+      console.error("trackOrder error:", error);
+      throw new Error("Lookup failed");
+    }
+    return { order: rows && rows[0] ? rows[0] : null };
   });
