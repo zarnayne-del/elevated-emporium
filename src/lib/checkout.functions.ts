@@ -4,7 +4,7 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { notifyOrder } from "@/lib/telegram.server";
 
 const CheckoutSchema = z.object({
-  email: z.string().trim().email().max(255),
+  phone_number: z.string().trim().min(5).max(32).regex(/^[+\d\s().-]+$/, "Invalid phone number"),
   shipping_name: z.string().trim().min(1).max(120),
   shipping_address: z.string().trim().min(1).max(255),
   shipping_city: z.string().trim().min(1).max(100),
