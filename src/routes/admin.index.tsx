@@ -27,7 +27,7 @@ function AdminOrdersPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("orders")
-        .select("id, order_number, email, shipping_name, shipping_city, shipping_country, total_cents, status, payment_screenshot_url, created_at")
+        .select("id, order_number, email, phone_number, shipping_name, shipping_city, shipping_country, total_cents, status, payment_screenshot_url, created_at")
         .order("created_at", { ascending: false });
       if (error) throw error;
       return (data ?? []) as Order[];
