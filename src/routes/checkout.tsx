@@ -21,8 +21,6 @@ const ShippingSchema = z.object({
   shipping_name: z.string().trim().min(1, "Required").max(120),
   shipping_address: z.string().trim().min(1, "Required").max(255),
   shipping_city: z.string().trim().min(1, "Required").max(100),
-  shipping_zip: z.string().trim().min(1, "Required").max(20),
-  shipping_country: z.string().trim().min(2, "Required").max(60),
 });
 
 type ShippingData = z.infer<typeof ShippingSchema>;
