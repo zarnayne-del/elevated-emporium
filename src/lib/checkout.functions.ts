@@ -62,7 +62,7 @@ export const placeOrder = createServerFn({ method: "POST" })
     const { data: order, error: orderErr } = await supabaseAdmin
       .from("orders")
       .insert({
-        email: data.email,
+        phone_number: data.phone_number,
         shipping_name: data.shipping_name,
         shipping_address: data.shipping_address,
         shipping_city: data.shipping_city,
