@@ -46,7 +46,7 @@ export async function notifyOrder(orderId: string) {
   // Plain text — avoids HTML parse errors from emails like <name@x.com>
   const message =
     `🟢 NEW ORDER ${order.order_number}\n` +
-    `${order.shipping_name} (${order.email})\n` +
+    `${order.shipping_name} (${order.phone_number ?? order.email ?? "—"})\n` +
     `${addr}\n\n` +
     (lines.length ? lines.join("\n") + "\n\n" : "") +
     `Subtotal: $${(order.subtotal_cents / 100).toFixed(2)}\n` +
