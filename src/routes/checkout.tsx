@@ -17,7 +17,12 @@ export const Route = createFileRoute("/checkout")({
 });
 
 const ShippingSchema = z.object({
-  email: z.string().trim().email("Enter a valid email").max(255),
+  phone_number: z
+    .string()
+    .trim()
+    .min(5, "Enter a valid phone number")
+    .max(32)
+    .regex(/^[+\d\s().-]+$/, "Invalid phone number"),
   shipping_name: z.string().trim().min(1, "Required").max(120),
   shipping_address: z.string().trim().min(1, "Required").max(255),
   shipping_city: z.string().trim().min(1, "Required").max(100),
