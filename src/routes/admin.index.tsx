@@ -68,7 +68,7 @@ function AdminOrdersPage() {
                   <td className="px-4 py-3 font-display tracking-wider">{o.order_number}</td>
                   <td className="px-4 py-3">
                     <div className="font-semibold">{o.shipping_name}</div>
-                    <div className="label-mono text-forest/60">{o.email}</div>
+                    <div className="label-mono text-forest/60">{o.phone_number ?? o.email ?? "—"}</div>
                   </td>
                   <td className="px-4 py-3">
                     {o.shipping_city}, {o.shipping_country}
