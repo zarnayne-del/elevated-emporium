@@ -126,11 +126,7 @@ function CheckoutPage() {
               <legend className="label-mono text-safety mb-4">Shipping</legend>
               <Field name="shipping_name" label="Full Name" required defaultValue={shipping?.shipping_name} autoComplete="name" />
               <Field name="shipping_address" label="Address" required defaultValue={shipping?.shipping_address} autoComplete="street-address" />
-              <div className="grid grid-cols-2 gap-4">
-                <Field name="shipping_city" label="City" required defaultValue={shipping?.shipping_city} autoComplete="address-level2" />
-                <Field name="shipping_zip" label="ZIP / Postal" required defaultValue={shipping?.shipping_zip} autoComplete="postal-code" />
-              </div>
-              <Field name="shipping_country" label="Country" required defaultValue={shipping?.shipping_country ?? "US"} autoComplete="country-name" />
+              <Field name="shipping_city" label="City" required defaultValue={shipping?.shipping_city} autoComplete="address-level2" />
             </fieldset>
           </div>
           <Summary items={items} subtotal={subtotal} shippingFee={shippingFee} total={total}>
