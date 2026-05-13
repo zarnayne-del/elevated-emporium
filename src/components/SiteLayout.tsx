@@ -25,6 +25,9 @@ export function SiteHeader() {
         <Link to="/shop" className="hover:text-safety transition-colors">
           Archive
         </Link>
+        <Link to="/track" className="hover:text-safety transition-colors">
+          Track
+        </Link>
       </div>
       <div className="flex items-center gap-5">
         <Link
