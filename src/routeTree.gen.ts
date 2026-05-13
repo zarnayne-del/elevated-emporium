@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TrackRouteImport } from './routes/track'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as CartRouteImport } from './routes/cart'
@@ -20,6 +21,11 @@ import { Route as OrderIdRouteImport } from './routes/order.$id'
 import { Route as AdminProductsRouteImport } from './routes/admin.products'
 import { Route as ApiPublicNotifyOrderRouteImport } from './routes/api/public/notify-order'
 
+const TrackRoute = TrackRouteImport.update({
+  id: '/track',
+  path: '/track',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ShopRoute = ShopRouteImport.update({
   id: '/shop',
   path: '/shop',
@@ -77,6 +83,7 @@ export interface FileRoutesByFullPath {
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
   '/shop': typeof ShopRoute
+  '/track': typeof TrackRoute
   '/admin/products': typeof AdminProductsRoute
   '/order/$id': typeof OrderIdRoute
   '/products/$slug': typeof ProductsSlugRoute
@@ -88,6 +95,7 @@ export interface FileRoutesByTo {
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
   '/shop': typeof ShopRoute
+  '/track': typeof TrackRoute
   '/admin/products': typeof AdminProductsRoute
   '/order/$id': typeof OrderIdRoute
   '/products/$slug': typeof ProductsSlugRoute
@@ -101,6 +109,7 @@ export interface FileRoutesById {
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
   '/shop': typeof ShopRoute
+  '/track': typeof TrackRoute
   '/admin/products': typeof AdminProductsRoute
   '/order/$id': typeof OrderIdRoute
   '/products/$slug': typeof ProductsSlugRoute
@@ -115,6 +124,7 @@ export interface FileRouteTypes {
     | '/cart'
     | '/checkout'
     | '/shop'
+    | '/track'
     | '/admin/products'
     | '/order/$id'
     | '/products/$slug'
@@ -126,6 +136,7 @@ export interface FileRouteTypes {
     | '/cart'
     | '/checkout'
     | '/shop'
+    | '/track'
     | '/admin/products'
     | '/order/$id'
     | '/products/$slug'
@@ -138,6 +149,7 @@ export interface FileRouteTypes {
     | '/cart'
     | '/checkout'
     | '/shop'
+    | '/track'
     | '/admin/products'
     | '/order/$id'
     | '/products/$slug'
@@ -151,6 +163,7 @@ export interface RootRouteChildren {
   CartRoute: typeof CartRoute
   CheckoutRoute: typeof CheckoutRoute
   ShopRoute: typeof ShopRoute
+  TrackRoute: typeof TrackRoute
   OrderIdRoute: typeof OrderIdRoute
   ProductsSlugRoute: typeof ProductsSlugRoute
   ApiPublicNotifyOrderRoute: typeof ApiPublicNotifyOrderRoute
@@ -158,6 +171,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/track': {
+      id: '/track'
+      path: '/track'
+      fullPath: '/track'
+      preLoaderRoute: typeof TrackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/shop': {
       id: '/shop'
       path: '/shop'
@@ -249,6 +269,7 @@ const rootRouteChildren: RootRouteChildren = {
   CartRoute: CartRoute,
   CheckoutRoute: CheckoutRoute,
   ShopRoute: ShopRoute,
+  TrackRoute: TrackRoute,
   OrderIdRoute: OrderIdRoute,
   ProductsSlugRoute: ProductsSlugRoute,
   ApiPublicNotifyOrderRoute: ApiPublicNotifyOrderRoute,
@@ -256,3 +277,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
