@@ -99,6 +99,12 @@ function CheckoutPage() {
           })),
         },
       });
+      if (!res.ok) {
+        clearCart();
+        toast.error("Your cart was outdated and has been cleared. Please add fresh items.");
+        navigate({ to: "/shop" });
+        return;
+      }
       clearCart();
       navigate({ to: "/order/$id", params: { id: res.id } });
     } catch (err) {
