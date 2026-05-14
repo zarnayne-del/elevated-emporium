@@ -103,7 +103,14 @@ function CheckoutPage() {
       navigate({ to: "/order/$id", params: { id: res.id } });
     } catch (err) {
       console.error(err);
-      toast.error(err instanceof Error ? err.message : "Checkout failed");
+      const msg = err instanceof Error ? err.message : "Checkout failed";
+      if (msg.includes("no longer available")) {
+        clearCart();
+        toast.error("Your cart was outdated and has been cleared. Please add fresh items.");
+        navigate({ to: "/shop" });
+      } else {
+        toast.error(msg);
+      }
     } finally {
       setSubmitting(false);
     }
