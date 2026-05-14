@@ -1,9 +1,27 @@
 import { Link } from "@tanstack/react-router";
 import { useCart } from "@/lib/cart-store";
+import { useState } from "react";
 import type { ReactNode } from "react";
 
 export function SiteHeader() {
   const { count } = useCart();
+  const [open, setOpen] = useState(false);
+  const navLinks = (
+    <>
+      <Link to="/shop" search={{ category: "Flower" }} onClick={() => setOpen(false)} className="hover:text-safety transition-colors">
+        Flower
+      </Link>
+      <Link to="/shop" search={{ category: "Streetwear" }} onClick={() => setOpen(false)} className="hover:text-safety transition-colors">
+        Streetwear
+      </Link>
+      <Link to="/shop" search={{ category: "Accessories" }} onClick={() => setOpen(false)} className="hover:text-safety transition-colors">
+        Accessories
+      </Link>
+      <Link to="/track" onClick={() => setOpen(false)} className="hover:text-safety transition-colors">
+        Track Order
+      </Link>
+    </>
+  );
   return (
     <nav className="sticky top-0 z-40 bg-sand/95 backdrop-blur border-b-2 border-forest px-6 md:px-8 py-5 flex justify-between items-center">
       <Link
@@ -13,23 +31,9 @@ export function SiteHeader() {
         Kush &amp; Cotton
       </Link>
       <div className="hidden md:flex gap-10 uppercase text-[11px] font-semibold tracking-[0.25em]">
-        <Link to="/shop" search={{ category: "Flower" }} className="hover:text-safety transition-colors">
-          Flower
-        </Link>
-        <Link to="/shop" search={{ category: "Streetwear" }} className="hover:text-safety transition-colors">
-          Streetwear
-        </Link>
-        <Link to="/shop" search={{ category: "Accessories" }} className="hover:text-safety transition-colors">
-          Accessories
-        </Link>
-        <Link to="/shop" className="hover:text-safety transition-colors">
-          Archive
-        </Link>
-        <Link to="/track" className="hover:text-safety transition-colors">
-          Track
-        </Link>
+        {navLinks}
       </div>
-      <div className="flex items-center gap-5">
+      <div className="flex items-center gap-4">
         <Link
           to="/cart"
           className="text-[11px] font-semibold uppercase tracking-[0.25em] hover:text-safety transition-colors"
@@ -39,7 +43,23 @@ export function SiteHeader() {
         <span className="hidden md:inline-block label-mono bg-forest text-sand px-2 py-1">
           BOT_ACTIVE
         </span>
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          aria-label="Toggle menu"
+          aria-expanded={open}
+          className="md:hidden border-2 border-forest p-2"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            {open ? <path d="M6 6l12 12M6 18L18 6" /> : <path d="M3 6h18M3 12h18M3 18h18" />}
+          </svg>
+        </button>
       </div>
+      {open && (
+        <div className="md:hidden absolute top-full left-0 right-0 bg-sand border-b-2 border-forest flex flex-col gap-5 px-6 py-6 uppercase text-xs font-semibold tracking-[0.25em]">
+          {navLinks}
+        </div>
+      )}
     </nav>
   );
 }
