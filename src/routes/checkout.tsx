@@ -9,7 +9,7 @@ import { placeOrder } from "@/lib/checkout.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import qrKpay from "@/assets/qr-kpay.jpg";
-import qrWavepay from "@/assets/qr-wavepay.jpg">
+import qrWavepay from "@/assets/qr-wavepay.jpg";
 
 
 export const Route = createFileRoute("/checkout")({
