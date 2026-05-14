@@ -81,6 +81,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Kush & Cotton — Premium Cannabis & Streetwear" },
+      { name: "description", content: "E-commerce platform for cannabis and streetwear, featuring a modern UI and secure checkout." },
+      { property: "og:description", content: "E-commerce platform for cannabis and streetwear, featuring a modern UI and secure checkout." },
+      { name: "twitter:description", content: "E-commerce platform for cannabis and streetwear, featuring a modern UI and secure checkout." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/50507db2-50ea-42af-a0b5-5599b01defde/id-preview-4a3f52aa--e5b7778b-39b3-473b-89c2-5e00b2fb4978.lovable.app-1778633790828.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/50507db2-50ea-42af-a0b5-5599b01defde/id-preview-4a3f52aa--e5b7778b-39b3-473b-89c2-5e00b2fb4978.lovable.app-1778633790828.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
