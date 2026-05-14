@@ -31,26 +31,30 @@ export const placeOrder = createServerFn({ method: "POST" })
 
     if (prodErr) throw new Error("Failed to load products");
 
-    const priced = data.items
-      .map((it) => {
-        const p = products?.find((p) => p.id === it.product_id);
-        if (!p) return null;
-        if (!p.in_stock) throw new Error(`${p.name} is out of stock`);
-        return {
-          product_id: p.id,
-          product_slug: p.slug,
-          product_name: p.name,
-          unit_price_cents: p.price_cents,
-          quantity: it.quantity,
-        };
-      })
-      .filter((x): x is NonNullable<typeof x> => x !== null);
+    const unavailable = data.items.filter((it) => {
+      const p = products?.find((p) => p.id === it.product_id);
+      return !p || !p.in_stock;
+    });
 
-    if (priced.length === 0) {
-      throw new Error(
-        "Your cart items are no longer available. Please clear your cart and add fresh items from the shop."
-      );
+    if (unavailable.length > 0) {
+      return {
+        ok: false as const,
+        reason: "stale_cart" as const,
+        message:
+          "Your cart items are no longer available. Please clear your cart and add fresh items from the shop.",
+      };
     }
+
+    const priced = data.items.map((it) => {
+      const p = products!.find((p) => p.id === it.product_id)!;
+      return {
+        product_id: p.id,
+        product_slug: p.slug,
+        product_name: p.name,
+        unit_price_cents: p.price_cents,
+        quantity: it.quantity,
+      };
+    });
 
     const subtotal_cents = priced.reduce(
       (s, i) => s + i.unit_price_cents * i.quantity,
@@ -98,6 +102,7 @@ export const placeOrder = createServerFn({ method: "POST" })
     }
 
     return {
+      ok: true as const,
       id: order.id,
       order_number: order.order_number,
       total_cents: order.total_cents,
