@@ -110,45 +110,42 @@ export const placeOrder = createServerFn({ method: "POST" })
   });
 
 const TrackSchema = z.object({
-  reference: z.string().trim().min(3).max(64),
+  phone_number: z
+    .string()
+    .trim()
+    .min(5)
+    .max(32)
+    .regex(/^[+\d\s().-]+$/, "Invalid phone number"),
 });
+
+function normalizePhone(p: string) {
+  return p.replace(/[^\d]/g, "");
+}
 
 export const trackOrder = createServerFn({ method: "POST" })
   .inputValidator((input) => TrackSchema.parse(input))
   .handler(async ({ data }) => {
-    const ref = data.reference.trim();
-    // Match by order_number (e.g. KC-12345) or by short id prefix
-    const upper = ref.toUpperCase();
-    const isUuidish = /^[0-9a-fA-F-]{8,}$/.test(ref);
+    const raw = data.phone_number.trim();
+    const digits = normalizePhone(raw);
 
-    let query = supabaseAdmin
+    // Fetch candidates and match by normalized digits to be tolerant
+    // of formatting differences (spaces, dashes, parentheses, +).
+    const { data: rows, error } = await supabaseAdmin
       .from("orders")
       .select(
-        "id, order_number, status, shipping_name, shipping_city, total_cents, created_at, notified_at"
+        "id, order_number, status, shipping_name, shipping_city, shipping_address, total_cents, created_at, notified_at, phone_number"
       )
-      .limit(1);
+      .order("created_at", { ascending: false })
+      .limit(500);
 
-    if (upper.startsWith("KC-")) {
-      query = query.eq("order_number", upper);
-    } else if (isUuidish) {
-      // Try id first
-      const { data: byId } = await supabaseAdmin
-        .from("orders")
-        .select(
-          "id, order_number, status, shipping_name, shipping_city, total_cents, created_at, notified_at"
-        )
-        .ilike("id", `${ref.toLowerCase()}%`)
-        .limit(1);
-      if (byId && byId.length > 0) return { order: byId[0] };
-      query = query.eq("order_number", `KC-${ref}`);
-    } else {
-      query = query.eq("order_number", `KC-${ref}`);
-    }
-
-    const { data: rows, error } = await query;
     if (error) {
       console.error("trackOrder error:", error);
       throw new Error("Lookup failed");
     }
-    return { order: rows && rows[0] ? rows[0] : null };
+
+    const matches = (rows ?? []).filter(
+      (r) => r.phone_number && normalizePhone(r.phone_number) === digits
+    );
+
+    return { orders: matches };
   });
