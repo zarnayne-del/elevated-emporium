@@ -93,11 +93,15 @@ function AdminOrdersPage() {
                     {formatPrice(o.total_cents)}
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`label-mono px-2 py-1 ${
-                      o.status === "confirmed" ? "bg-forest text-sand" : "bg-safety text-sand"
-                    }`}>
-                      {o.status}
-                    </span>
+                    <select
+                      value={STATUS_OPTIONS.includes(o.status as typeof STATUS_OPTIONS[number]) ? o.status : "pending"}
+                      onChange={(e) => updateStatus(o.id, e.target.value)}
+                      className="label-mono bg-sand border-2 border-forest px-2 py-1 focus:outline-none focus:bg-safety/10"
+                    >
+                      {STATUS_OPTIONS.map((s) => (
+                        <option key={s} value={s}>{s.replace(/_/g, " ")}</option>
+                      ))}
+                    </select>
                   </td>
                   <td className="px-4 py-3">
                     {o.payment_screenshot_url ? (
