@@ -121,7 +121,7 @@ function CartPage() {
               Secure Checkout →
             </Link>
             <p className="label-mono text-sand/40 mt-6 text-center">
-              Free shipping over $150
+              Free shipping over 500,000 Ks
             </p>
           </aside>
         </section>
