@@ -70,17 +70,38 @@ function ProductPage() {
     navigate({ to: "/checkout" });
   };
 
+  const images = productImages_(product);
+  const [activeIdx, setActiveIdx] = useState(0);
+  const activeImg = images[activeIdx] ?? images[0];
+
   return (
     <SiteLayout>
       <article className="grid grid-cols-1 lg:grid-cols-2 border-b-2 border-forest">
-        <div className={`${tileBg(product.color)} border-r-0 lg:border-r-2 border-forest flex items-center justify-center p-8 md:p-16`}>
-          <img
-            src={productImage(product)}
-            alt={product.name}
-            width={800}
-            height={800}
-            className="w-full max-w-lg"
-          />
+        <div className={`${tileBg(product.color)} border-r-0 lg:border-r-2 border-forest p-8 md:p-16`}>
+          <div className="flex items-center justify-center">
+            {activeImg && (
+              <img
+                src={activeImg}
+                alt={product.name}
+                width={800}
+                height={800}
+                className="w-full max-w-lg"
+              />
+            )}
+          </div>
+          {images.length > 1 && (
+            <div className="mt-6 flex gap-3 flex-wrap justify-center">
+              {images.map((src, i) => (
+                <button
+                  key={src}
+                  onClick={() => setActiveIdx(i)}
+                  className={`w-16 h-16 border-2 overflow-hidden ${i === activeIdx ? "border-safety" : "border-forest"}`}
+                >
+                  <img src={src} alt="" className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
         <div className="p-8 md:p-16 flex flex-col">
           <p className="label-mono text-safety mb-4">{product.category}</p>
