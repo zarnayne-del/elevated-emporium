@@ -128,6 +128,7 @@ export type Database = {
           id: string
           image_path: string
           image_url: string | null
+          image_urls: string[]
           in_stock: boolean
           name: string
           price_cents: number
@@ -143,6 +144,7 @@ export type Database = {
           id?: string
           image_path?: string
           image_url?: string | null
+          image_urls?: string[]
           in_stock?: boolean
           name: string
           price_cents: number
@@ -158,6 +160,7 @@ export type Database = {
           id?: string
           image_path?: string
           image_url?: string | null
+          image_urls?: string[]
           in_stock?: boolean
           name?: string
           price_cents?: number
