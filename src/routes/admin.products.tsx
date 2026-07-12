@@ -107,7 +107,7 @@ function AdminProductsPage() {
         <form onSubmit={onSubmit} className="border-2 border-forest p-6 space-y-5 bg-sand">
           <Field name="name" label="Name" required />
           <div className="grid grid-cols-2 gap-4">
-            <Field name="price" label="Price (USD)" type="number" step="0.01" required />
+            <Field name="price" label="Price (Ks)" type="number" step="100" required />
             <label className="block">
               <span className="label-mono text-forest/60 block mb-2">Category</span>
               <select
@@ -131,11 +131,14 @@ function AdminProductsPage() {
             />
           </label>
           <label className="block">
-            <span className="label-mono text-forest/60 block mb-2">Image</span>
+            <span className="label-mono text-forest/60 block mb-2">
+              Images {files.length > 0 && `(${files.length} selected)`}
+            </span>
             <input
               type="file"
               accept="image/*"
-              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+              multiple
+              onChange={(e) => setFiles(Array.from(e.target.files ?? []))}
               className="w-full bg-sand border-2 border-forest px-4 py-3 text-sm file:mr-3 file:px-3 file:py-1 file:border-0 file:bg-forest file:text-sand file:label-mono"
             />
           </label>
