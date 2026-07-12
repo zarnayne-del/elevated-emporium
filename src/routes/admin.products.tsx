@@ -36,43 +36,43 @@ function AdminProductsPage() {
     const name = (fd.get("name") as string)?.trim();
     const description = (fd.get("description") as string)?.trim();
     const category = (fd.get("category") as string) || "Streetwear";
-    const priceDollars = parseFloat(fd.get("price") as string);
-    if (!name || !description || isNaN(priceDollars) || priceDollars <= 0) {
+    const priceMmk = parseFloat(fd.get("price") as string);
+    if (!name || !description || isNaN(priceMmk) || priceMmk <= 0) {
       toast.error("Fill all required fields with valid values");
       return;
     }
     setSubmitting(true);
     try {
-      let image_url = "";
-      if (file) {
-        const ext = file.name.split(".").pop()?.toLowerCase() || "png";
+      const image_urls: string[] = [];
+      for (const f of files) {
+        const ext = f.name.split(".").pop()?.toLowerCase() || "png";
         const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
         const { error: upErr } = await supabase.storage
           .from("product-images")
-          .upload(path, file, { contentType: file.type });
+          .upload(path, f, { contentType: f.type });
         if (upErr) throw upErr;
-        const { data: pub } = supabase.storage
-          .from("product-images")
-          .getPublicUrl(path);
-        image_url = pub.publicUrl;
+        const { data: pub } = supabase.storage.from("product-images").getPublicUrl(path);
+        image_urls.push(pub.publicUrl);
       }
       const slug = `${slugify(name)}-${Math.random().toString(36).slice(2, 6)}`;
+      const price_cents = Math.round((priceMmk / USD_TO_MMK) * 100);
       const { error } = await supabase.from("products").insert({
         slug,
         name,
         category,
         description,
         subtitle: category,
-        price_cents: Math.round(priceDollars * 100),
+        price_cents,
         color: "sand",
-        image_url,
+        image_url: image_urls[0] ?? "",
+        image_urls,
         in_stock: true,
         sort_order: 100,
       });
       if (error) throw error;
       toast.success("Product created");
       form.reset();
-      setFile(null);
+      setFiles([]);
       qc.invalidateQueries({ queryKey: ["admin", "products"] });
       qc.invalidateQueries({ queryKey: ["products"] });
     } catch (err) {
