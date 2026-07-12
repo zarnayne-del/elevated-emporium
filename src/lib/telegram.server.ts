@@ -26,12 +26,12 @@ export async function notifyOrder(orderId: string) {
     .select("product_name, quantity, unit_price_cents")
     .eq("order_id", orderId);
 
+  const USD_TO_MMK = 3500;
+  const mmk = (cents: number) =>
+    `${Math.round((cents / 100) * USD_TO_MMK).toLocaleString("en-US")} Ks`;
+
   const lines = (items ?? []).map(
-    (p) =>
-      `• ${p.quantity}× ${p.product_name} — $${(
-        (p.unit_price_cents * p.quantity) /
-        100
-      ).toFixed(2)}`
+    (p) => `• ${p.quantity}× ${p.product_name} — ${mmk(p.unit_price_cents * p.quantity)}`
   );
 
   const addr = [
@@ -49,9 +49,9 @@ export async function notifyOrder(orderId: string) {
     `${order.shipping_name} (${order.phone_number ?? order.email ?? "—"})\n` +
     `${addr}\n\n` +
     (lines.length ? lines.join("\n") + "\n\n" : "") +
-    `Subtotal: $${(order.subtotal_cents / 100).toFixed(2)}\n` +
-    `Shipping: $${(order.shipping_cents / 100).toFixed(2)}\n` +
-    `Total: $${(order.total_cents / 100).toFixed(2)}` +
+    `Subtotal: ${mmk(order.subtotal_cents)}\n` +
+    `Shipping: ${mmk(order.shipping_cents)}\n` +
+    `Total: ${mmk(order.total_cents)}` +
     (order.payment_screenshot_url
       ? `\n\nReceipt: ${order.payment_screenshot_url}`
       : "");
