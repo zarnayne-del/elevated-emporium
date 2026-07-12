@@ -26,6 +26,7 @@ type Order = {
 };
 
 function AdminOrdersPage() {
+  const qc = useQueryClient();
   const { data: orders, isLoading } = useQuery({
     queryKey: ["admin", "orders"],
     queryFn: async () => {
@@ -37,6 +38,17 @@ function AdminOrdersPage() {
       return (data ?? []) as Order[];
     },
   });
+
+  const updateStatus = async (id: string, status: string) => {
+    const { error } = await supabase.from("orders").update({ status }).eq("id", id);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Status updated");
+    qc.invalidateQueries({ queryKey: ["admin", "orders"] });
+  };
+
 
   return (
     <section>
