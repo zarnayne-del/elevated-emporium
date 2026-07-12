@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { formatPrice, type Product, productImage } from "@/lib/products";
+import { formatPrice, type Product, productImage, USD_TO_MMK } from "@/lib/products";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/products")({
