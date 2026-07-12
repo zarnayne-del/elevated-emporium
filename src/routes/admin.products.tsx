@@ -15,7 +15,7 @@ const slugify = (s: string) =>
 function AdminProductsPage() {
   const qc = useQueryClient();
   const [submitting, setSubmitting] = useState(false);
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
 
   const { data: products, isLoading } = useQuery({
     queryKey: ["admin", "products"],
