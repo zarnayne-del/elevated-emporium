@@ -128,7 +128,7 @@ function ProductPage() {
           <div className="mt-auto pt-8 border-t border-forest/20 grid grid-cols-2 gap-6 label-mono text-forest/70">
             <div>
               <p className="text-forest mb-1">Shipping</p>
-              <p>Free over $150</p>
+              <p>Free over 500,000 Ks</p>
             </div>
             <div>
               <p className="text-forest mb-1">Returns</p>
