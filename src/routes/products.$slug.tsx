@@ -1,8 +1,9 @@
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteLayout } from "@/components/SiteLayout";
-import { type Product, productImage, formatPrice, tileBg } from "@/lib/products";
+import { type Product, productImages_, formatPrice, tileBg } from "@/lib/products";
 import { addToCart } from "@/lib/cart-store";
 import { toast } from "sonner";
 
