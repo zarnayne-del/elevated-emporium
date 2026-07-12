@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { formatPrice, type Product, productImage } from "@/lib/products";
+import { formatPrice, type Product, productImage, USD_TO_MMK } from "@/lib/products";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/products")({
@@ -15,7 +15,7 @@ const slugify = (s: string) =>
 function AdminProductsPage() {
   const qc = useQueryClient();
   const [submitting, setSubmitting] = useState(false);
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
 
   const { data: products, isLoading } = useQuery({
     queryKey: ["admin", "products"],
@@ -36,43 +36,43 @@ function AdminProductsPage() {
     const name = (fd.get("name") as string)?.trim();
     const description = (fd.get("description") as string)?.trim();
     const category = (fd.get("category") as string) || "Streetwear";
-    const priceDollars = parseFloat(fd.get("price") as string);
-    if (!name || !description || isNaN(priceDollars) || priceDollars <= 0) {
+    const priceMmk = parseFloat(fd.get("price") as string);
+    if (!name || !description || isNaN(priceMmk) || priceMmk <= 0) {
       toast.error("Fill all required fields with valid values");
       return;
     }
     setSubmitting(true);
     try {
-      let image_url = "";
-      if (file) {
-        const ext = file.name.split(".").pop()?.toLowerCase() || "png";
+      const image_urls: string[] = [];
+      for (const f of files) {
+        const ext = f.name.split(".").pop()?.toLowerCase() || "png";
         const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
         const { error: upErr } = await supabase.storage
           .from("product-images")
-          .upload(path, file, { contentType: file.type });
+          .upload(path, f, { contentType: f.type });
         if (upErr) throw upErr;
-        const { data: pub } = supabase.storage
-          .from("product-images")
-          .getPublicUrl(path);
-        image_url = pub.publicUrl;
+        const { data: pub } = supabase.storage.from("product-images").getPublicUrl(path);
+        image_urls.push(pub.publicUrl);
       }
       const slug = `${slugify(name)}-${Math.random().toString(36).slice(2, 6)}`;
+      const price_cents = Math.round((priceMmk / USD_TO_MMK) * 100);
       const { error } = await supabase.from("products").insert({
         slug,
         name,
         category,
         description,
         subtitle: category,
-        price_cents: Math.round(priceDollars * 100),
+        price_cents,
         color: "sand",
-        image_url,
+        image_url: image_urls[0] ?? "",
+        image_urls,
         in_stock: true,
         sort_order: 100,
       });
       if (error) throw error;
       toast.success("Product created");
       form.reset();
-      setFile(null);
+      setFiles([]);
       qc.invalidateQueries({ queryKey: ["admin", "products"] });
       qc.invalidateQueries({ queryKey: ["products"] });
     } catch (err) {
@@ -107,7 +107,7 @@ function AdminProductsPage() {
         <form onSubmit={onSubmit} className="border-2 border-forest p-6 space-y-5 bg-sand">
           <Field name="name" label="Name" required />
           <div className="grid grid-cols-2 gap-4">
-            <Field name="price" label="Price (USD)" type="number" step="0.01" required />
+            <Field name="price" label="Price (Ks)" type="number" step="100" required />
             <label className="block">
               <span className="label-mono text-forest/60 block mb-2">Category</span>
               <select
@@ -131,11 +131,14 @@ function AdminProductsPage() {
             />
           </label>
           <label className="block">
-            <span className="label-mono text-forest/60 block mb-2">Image</span>
+            <span className="label-mono text-forest/60 block mb-2">
+              Images {files.length > 0 && `(${files.length} selected)`}
+            </span>
             <input
               type="file"
               accept="image/*"
-              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+              multiple
+              onChange={(e) => setFiles(Array.from(e.target.files ?? []))}
               className="w-full bg-sand border-2 border-forest px-4 py-3 text-sm file:mr-3 file:px-3 file:py-1 file:border-0 file:bg-forest file:text-sand file:label-mono"
             />
           </label>

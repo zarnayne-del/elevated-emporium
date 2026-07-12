@@ -1,7 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPrice } from "@/lib/products";
+import { toast } from "sonner";
+
+const STATUS_OPTIONS = ["pending", "payment_verified", "shipped", "delivered"] as const;
+
 
 export const Route = createFileRoute("/admin/")({
   component: AdminOrdersPage,
@@ -22,6 +26,7 @@ type Order = {
 };
 
 function AdminOrdersPage() {
+  const qc = useQueryClient();
   const { data: orders, isLoading } = useQuery({
     queryKey: ["admin", "orders"],
     queryFn: async () => {
@@ -33,6 +38,17 @@ function AdminOrdersPage() {
       return (data ?? []) as Order[];
     },
   });
+
+  const updateStatus = async (id: string, status: string) => {
+    const { error } = await supabase.from("orders").update({ status }).eq("id", id);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Status updated");
+    qc.invalidateQueries({ queryKey: ["admin", "orders"] });
+  };
+
 
   return (
     <section>
@@ -77,11 +93,15 @@ function AdminOrdersPage() {
                     {formatPrice(o.total_cents)}
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`label-mono px-2 py-1 ${
-                      o.status === "confirmed" ? "bg-forest text-sand" : "bg-safety text-sand"
-                    }`}>
-                      {o.status}
-                    </span>
+                    <select
+                      value={STATUS_OPTIONS.includes(o.status as typeof STATUS_OPTIONS[number]) ? o.status : "pending"}
+                      onChange={(e) => updateStatus(o.id, e.target.value)}
+                      className="label-mono bg-sand border-2 border-forest px-2 py-1 focus:outline-none focus:bg-safety/10"
+                    >
+                      {STATUS_OPTIONS.map((s) => (
+                        <option key={s} value={s}>{s.replace(/_/g, " ")}</option>
+                      ))}
+                    </select>
                   </td>
                   <td className="px-4 py-3">
                     {o.payment_screenshot_url ? (
