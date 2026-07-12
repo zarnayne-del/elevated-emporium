@@ -1,7 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPrice } from "@/lib/products";
+import { toast } from "sonner";
+
+const STATUS_OPTIONS = ["pending", "payment_verified", "shipped", "delivered"] as const;
+
 
 export const Route = createFileRoute("/admin/")({
   component: AdminOrdersPage,
