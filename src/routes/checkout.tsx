@@ -1,10 +1,16 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { z } from "zod";
 import { SiteLayout } from "@/components/SiteLayout";
 import { useCart, clearCart } from "@/lib/cart-store";
-import { formatPrice } from "@/lib/products";
+import {
+  centsToMmk,
+  computeShippingMmk,
+  formatMmk,
+  formatPrice,
+  formatShipping,
+} from "@/lib/products";
 import { placeOrder } from "@/lib/checkout.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -15,7 +21,40 @@ import qrWavepay from "@/assets/qr-wavepay.jpg";
 export const Route = createFileRoute("/checkout")({
   component: CheckoutPage,
   head: () => ({ meta: [{ title: "Checkout — Kush & Cotton" }] }),
+  errorComponent: CheckoutErrorBoundary,
 });
+
+function CheckoutErrorBoundary({ error, reset }: { error: Error; reset: () => void }) {
+  const router = useRouter();
+  console.error("Checkout crashed:", error);
+  return (
+    <SiteLayout>
+      <div className="px-6 md:px-8 py-24 max-w-xl mx-auto text-center">
+        <p className="label-mono text-safety mb-3">Something went wrong</p>
+        <h1 className="font-display text-3xl uppercase tracking-tighter mb-4">
+          Checkout hit a snag
+        </h1>
+        <p className="text-forest/70 mb-8 text-sm">
+          Don&apos;t worry — your cart is safe. Try again, or head back to the shop.
+        </p>
+        <div className="flex gap-3 justify-center">
+          <button
+            className="btn-forest"
+            onClick={() => {
+              reset();
+              router.invalidate();
+            }}
+          >
+            Try again
+          </button>
+          <Link to="/shop" className="btn-forest bg-sand text-forest border-2 border-forest">
+            Back to shop
+          </Link>
+        </div>
+      </div>
+    </SiteLayout>
+  );
+}
 
 const ShippingSchema = z.object({
   phone_number: z
@@ -40,8 +79,27 @@ function CheckoutPage() {
   const [file, setFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const shippingFee = subtotal === 0 ? 0 : subtotal >= 15000 ? 0 : 800;
-  const total = subtotal + shippingFee;
+  // Track address & city live so shipping updates without a page refresh.
+  const [addressInput, setAddressInput] = useState("");
+  const [cityInput, setCityInput] = useState("");
+
+  // Compute shipping (MMK) from the active step's inputs.
+  const shippingMmk = useMemo(() => {
+    try {
+      const src =
+        step === "payment" && shipping
+          ? { address: shipping.shipping_address, city: shipping.shipping_city }
+          : { address: addressInput, city: cityInput };
+      if (!items.length) return 0;
+      return computeShippingMmk(src.address, src.city);
+    } catch (e) {
+      console.error("shipping calc failed:", e);
+      return 10_000; // safe fallback
+    }
+  }, [step, shipping, addressInput, cityInput, items.length]);
+
+  const subtotalMmk = centsToMmk(subtotal);
+  const totalMmk = subtotalMmk + shippingMmk;
 
   if (items.length === 0) {
     return (
@@ -145,11 +203,28 @@ function CheckoutPage() {
             <fieldset className="space-y-5">
               <legend className="label-mono text-safety mb-4">Shipping</legend>
               <Field name="shipping_name" label="Full Name" required defaultValue={shipping?.shipping_name} autoComplete="name" />
-              <Field name="shipping_address" label="Address" required defaultValue={shipping?.shipping_address} autoComplete="street-address" />
-              <Field name="shipping_city" label="City" required defaultValue={shipping?.shipping_city} autoComplete="address-level2" />
+              <Field
+                name="shipping_address"
+                label="Address"
+                required
+                defaultValue={shipping?.shipping_address}
+                autoComplete="street-address"
+                onChange={(v) => setAddressInput(v)}
+              />
+              <Field
+                name="shipping_city"
+                label="City"
+                required
+                defaultValue={shipping?.shipping_city}
+                autoComplete="address-level2"
+                onChange={(v) => setCityInput(v)}
+              />
+              <p className="label-mono text-forest/50">
+                Shipping is <strong>FREE</strong> within Yangon / Yangon Region. All other cities: 10,000 Ks.
+              </p>
             </fieldset>
           </div>
-          <Summary items={items} subtotal={subtotal} shippingFee={shippingFee} total={total}>
+          <Summary items={items} subtotalMmk={subtotalMmk} shippingMmk={shippingMmk} totalMmk={totalMmk}>
             <button type="submit" className="block w-full text-center py-5 bg-sand text-forest font-display uppercase tracking-[0.2em] text-xs hover:bg-safety hover:text-sand transition-colors cursor-pointer">
               Continue to Payment →
             </button>
@@ -163,7 +238,7 @@ function CheckoutPage() {
               <h2 className="font-display text-2xl uppercase mb-2">Scan to Pay</h2>
               <p className="text-sm text-forest/70 max-w-md">
                 Scan one of the QR codes below with K Pay or Wave Pay. Send the
-                exact total of <strong>{formatPrice(total)}</strong>, then upload
+                exact total of <strong>{formatMmk(totalMmk)}</strong>, then upload
                 your payment screenshot.
               </p>
             </div>
@@ -209,13 +284,13 @@ function CheckoutPage() {
               ← Back to shipping
             </button>
           </div>
-          <Summary items={items} subtotal={subtotal} shippingFee={shippingFee} total={total}>
+          <Summary items={items} subtotalMmk={subtotalMmk} shippingMmk={shippingMmk} totalMmk={totalMmk}>
             <button
               type="submit"
               disabled={submitting}
               className="block w-full text-center py-5 bg-sand text-forest font-display uppercase tracking-[0.2em] text-xs hover:bg-safety hover:text-sand transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-wait"
             >
-              {submitting ? "Processing…" : `Confirm · ${formatPrice(total)}`}
+              {submitting ? "Processing…" : `Confirm · ${formatMmk(totalMmk)}`}
             </button>
           </Summary>
         </form>
@@ -240,15 +315,15 @@ function PayCard({ label, img, accent }: { label: string; img: string; accent: s
 
 function Summary({
   items,
-  subtotal,
-  shippingFee,
-  total,
+  subtotalMmk,
+  shippingMmk,
+  totalMmk,
   children,
 }: {
   items: ReturnType<typeof useCart>["items"];
-  subtotal: number;
-  shippingFee: number;
-  total: number;
+  subtotalMmk: number;
+  shippingMmk: number;
+  totalMmk: number;
   children: React.ReactNode;
 }) {
   return (
@@ -268,11 +343,11 @@ function Summary({
         ))}
       </ul>
       <div className="border-t border-sand/20 pt-4 space-y-2 mb-6 text-sm">
-        <Row label="Subtotal" value={formatPrice(subtotal)} />
-        <Row label="Shipping" value={shippingFee === 0 ? "FREE" : formatPrice(shippingFee)} />
+        <Row label="Subtotal" value={formatMmk(subtotalMmk)} />
+        <Row label="Shipping" value={formatShipping(shippingMmk)} />
         <div className="border-t border-sand/20 pt-3 flex justify-between font-display text-xl uppercase">
           <span>Total</span>
-          <span className="tabular-nums">{formatPrice(total)}</span>
+          <span className="tabular-nums">{formatMmk(totalMmk)}</span>
         </div>
       </div>
       {children}
@@ -287,6 +362,7 @@ function Field({
   required,
   defaultValue,
   autoComplete,
+  onChange,
 }: {
   name: string;
   label: string;
@@ -294,6 +370,7 @@ function Field({
   required?: boolean;
   defaultValue?: string;
   autoComplete?: string;
+  onChange?: (value: string) => void;
 }) {
   return (
     <label className="block">
@@ -304,6 +381,7 @@ function Field({
         required={required}
         defaultValue={defaultValue}
         autoComplete={autoComplete}
+        onChange={onChange ? (e) => onChange(e.currentTarget.value) : undefined}
         className="w-full bg-sand border-2 border-forest px-4 py-3 text-sm focus:outline-none focus:bg-safety/10"
       />
     </label>

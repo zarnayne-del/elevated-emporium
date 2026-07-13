@@ -32,10 +32,35 @@ export type Product = {
 
 // USD cents → MMK display. 1 USD ≈ 3500 MMK (adjust as needed).
 export const USD_TO_MMK = 3500;
-export const formatPrice = (cents: number) => {
-  const mmk = Math.round((cents / 100) * USD_TO_MMK);
-  return `${mmk.toLocaleString("en-US")} Ks`;
-};
+export const centsToMmk = (cents: number) =>
+  Math.round(((cents ?? 0) / 100) * USD_TO_MMK);
+export const mmkToCents = (mmk: number) =>
+  Math.round(((mmk ?? 0) * 100) / USD_TO_MMK);
+export const formatMmk = (mmk: number) =>
+  `${Math.max(0, Math.round(mmk ?? 0)).toLocaleString("en-US")} Ks`;
+export const formatPrice = (cents: number) => formatMmk(centsToMmk(cents));
+
+/**
+ * Shipping rules (MMK):
+ *   - Address or City contains "Yangon" → Free (0)
+ *   - Everywhere else in Myanmar        → 10,000 Ks
+ */
+export const SHIPPING_YANGON_MMK = 0;
+export const SHIPPING_OTHER_MMK = 10_000;
+
+export function computeShippingMmk(address?: string | null, city?: string | null): number {
+  try {
+    const haystack = `${address ?? ""} ${city ?? ""}`.toLowerCase();
+    if (!haystack.trim()) return SHIPPING_OTHER_MMK;
+    return haystack.includes("yangon") ? SHIPPING_YANGON_MMK : SHIPPING_OTHER_MMK;
+  } catch {
+    return SHIPPING_OTHER_MMK;
+  }
+}
+
+export function formatShipping(mmk: number): string {
+  return mmk === 0 ? "Free" : formatMmk(mmk);
+}
 
 export const productImages_ = (p: Pick<Product, "slug" | "image_url" | "image_path" | "image_urls">): string[] => {
   const arr = (p.image_urls ?? []).filter(Boolean);
