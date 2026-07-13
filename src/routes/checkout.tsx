@@ -238,7 +238,7 @@ function CheckoutPage() {
               <h2 className="font-display text-2xl uppercase mb-2">Scan to Pay</h2>
               <p className="text-sm text-forest/70 max-w-md">
                 Scan one of the QR codes below with K Pay or Wave Pay. Send the
-                exact total of <strong>{formatPrice(total)}</strong>, then upload
+                exact total of <strong>{formatMmk(totalMmk)}</strong>, then upload
                 your payment screenshot.
               </p>
             </div>
