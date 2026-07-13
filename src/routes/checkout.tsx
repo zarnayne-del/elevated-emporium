@@ -315,15 +315,15 @@ function PayCard({ label, img, accent }: { label: string; img: string; accent: s
 
 function Summary({
   items,
-  subtotal,
-  shippingFee,
-  total,
+  subtotalMmk,
+  shippingMmk,
+  totalMmk,
   children,
 }: {
   items: ReturnType<typeof useCart>["items"];
-  subtotal: number;
-  shippingFee: number;
-  total: number;
+  subtotalMmk: number;
+  shippingMmk: number;
+  totalMmk: number;
   children: React.ReactNode;
 }) {
   return (
@@ -343,11 +343,11 @@ function Summary({
         ))}
       </ul>
       <div className="border-t border-sand/20 pt-4 space-y-2 mb-6 text-sm">
-        <Row label="Subtotal" value={formatPrice(subtotal)} />
-        <Row label="Shipping" value={shippingFee === 0 ? "FREE" : formatPrice(shippingFee)} />
+        <Row label="Subtotal" value={formatMmk(subtotalMmk)} />
+        <Row label="Shipping" value={formatShipping(shippingMmk)} />
         <div className="border-t border-sand/20 pt-3 flex justify-between font-display text-xl uppercase">
           <span>Total</span>
-          <span className="tabular-nums">{formatPrice(total)}</span>
+          <span className="tabular-nums">{formatMmk(totalMmk)}</span>
         </div>
       </div>
       {children}
