@@ -362,6 +362,7 @@ function Field({
   required,
   defaultValue,
   autoComplete,
+  onChange,
 }: {
   name: string;
   label: string;
@@ -369,6 +370,7 @@ function Field({
   required?: boolean;
   defaultValue?: string;
   autoComplete?: string;
+  onChange?: (value: string) => void;
 }) {
   return (
     <label className="block">
@@ -379,6 +381,7 @@ function Field({
         required={required}
         defaultValue={defaultValue}
         autoComplete={autoComplete}
+        onChange={onChange ? (e) => onChange(e.currentTarget.value) : undefined}
         className="w-full bg-sand border-2 border-forest px-4 py-3 text-sm focus:outline-none focus:bg-safety/10"
       />
     </label>
