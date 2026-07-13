@@ -79,8 +79,27 @@ function CheckoutPage() {
   const [file, setFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const shippingFee = subtotal === 0 ? 0 : subtotal >= 15000 ? 0 : 800;
-  const total = subtotal + shippingFee;
+  // Track address & city live so shipping updates without a page refresh.
+  const [addressInput, setAddressInput] = useState("");
+  const [cityInput, setCityInput] = useState("");
+
+  // Compute shipping (MMK) from the active step's inputs.
+  const shippingMmk = useMemo(() => {
+    try {
+      const src =
+        step === "payment" && shipping
+          ? { address: shipping.shipping_address, city: shipping.shipping_city }
+          : { address: addressInput, city: cityInput };
+      if (!items.length) return 0;
+      return computeShippingMmk(src.address, src.city);
+    } catch (e) {
+      console.error("shipping calc failed:", e);
+      return 10_000; // safe fallback
+    }
+  }, [step, shipping, addressInput, cityInput, items.length]);
+
+  const subtotalMmk = centsToMmk(subtotal);
+  const totalMmk = subtotalMmk + shippingMmk;
 
   if (items.length === 0) {
     return (
