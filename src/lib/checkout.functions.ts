@@ -61,7 +61,8 @@ export const placeOrder = createServerFn({ method: "POST" })
       (s, i) => s + i.unit_price_cents * i.quantity,
       0
     );
-    const shipping_cents = subtotal_cents >= 15000 ? 0 : 800;
+    const shipping_mmk = computeShippingMmk(data.shipping_address, data.shipping_city);
+    const shipping_cents = mmkToCents(shipping_mmk);
     const total_cents = subtotal_cents + shipping_cents;
 
     const { data: order, error: orderErr } = await supabaseAdmin
