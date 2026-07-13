@@ -1,10 +1,16 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { z } from "zod";
 import { SiteLayout } from "@/components/SiteLayout";
 import { useCart, clearCart } from "@/lib/cart-store";
-import { formatPrice } from "@/lib/products";
+import {
+  centsToMmk,
+  computeShippingMmk,
+  formatMmk,
+  formatPrice,
+  formatShipping,
+} from "@/lib/products";
 import { placeOrder } from "@/lib/checkout.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -15,7 +21,40 @@ import qrWavepay from "@/assets/qr-wavepay.jpg";
 export const Route = createFileRoute("/checkout")({
   component: CheckoutPage,
   head: () => ({ meta: [{ title: "Checkout — Kush & Cotton" }] }),
+  errorComponent: CheckoutErrorBoundary,
 });
+
+function CheckoutErrorBoundary({ error, reset }: { error: Error; reset: () => void }) {
+  const router = useRouter();
+  console.error("Checkout crashed:", error);
+  return (
+    <SiteLayout>
+      <div className="px-6 md:px-8 py-24 max-w-xl mx-auto text-center">
+        <p className="label-mono text-safety mb-3">Something went wrong</p>
+        <h1 className="font-display text-3xl uppercase tracking-tighter mb-4">
+          Checkout hit a snag
+        </h1>
+        <p className="text-forest/70 mb-8 text-sm">
+          Don&apos;t worry — your cart is safe. Try again, or head back to the shop.
+        </p>
+        <div className="flex gap-3 justify-center">
+          <button
+            className="btn-forest"
+            onClick={() => {
+              reset();
+              router.invalidate();
+            }}
+          >
+            Try again
+          </button>
+          <Link to="/shop" className="btn-forest bg-sand text-forest border-2 border-forest">
+            Back to shop
+          </Link>
+        </div>
+      </div>
+    </SiteLayout>
+  );
+}
 
 const ShippingSchema = z.object({
   phone_number: z
