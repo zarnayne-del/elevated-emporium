@@ -203,11 +203,28 @@ function CheckoutPage() {
             <fieldset className="space-y-5">
               <legend className="label-mono text-safety mb-4">Shipping</legend>
               <Field name="shipping_name" label="Full Name" required defaultValue={shipping?.shipping_name} autoComplete="name" />
-              <Field name="shipping_address" label="Address" required defaultValue={shipping?.shipping_address} autoComplete="street-address" />
-              <Field name="shipping_city" label="City" required defaultValue={shipping?.shipping_city} autoComplete="address-level2" />
+              <Field
+                name="shipping_address"
+                label="Address"
+                required
+                defaultValue={shipping?.shipping_address}
+                autoComplete="street-address"
+                onChange={(v) => setAddressInput(v)}
+              />
+              <Field
+                name="shipping_city"
+                label="City"
+                required
+                defaultValue={shipping?.shipping_city}
+                autoComplete="address-level2"
+                onChange={(v) => setCityInput(v)}
+              />
+              <p className="label-mono text-forest/50">
+                Shipping is <strong>FREE</strong> within Yangon / Yangon Region. All other cities: 10,000 Ks.
+              </p>
             </fieldset>
           </div>
-          <Summary items={items} subtotal={subtotal} shippingFee={shippingFee} total={total}>
+          <Summary items={items} subtotalMmk={subtotalMmk} shippingMmk={shippingMmk} totalMmk={totalMmk}>
             <button type="submit" className="block w-full text-center py-5 bg-sand text-forest font-display uppercase tracking-[0.2em] text-xs hover:bg-safety hover:text-sand transition-colors cursor-pointer">
               Continue to Payment →
             </button>
