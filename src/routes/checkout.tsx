@@ -284,13 +284,13 @@ function CheckoutPage() {
               ← Back to shipping
             </button>
           </div>
-          <Summary items={items} subtotal={subtotal} shippingFee={shippingFee} total={total}>
+          <Summary items={items} subtotalMmk={subtotalMmk} shippingMmk={shippingMmk} totalMmk={totalMmk}>
             <button
               type="submit"
               disabled={submitting}
               className="block w-full text-center py-5 bg-sand text-forest font-display uppercase tracking-[0.2em] text-xs hover:bg-safety hover:text-sand transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-wait"
             >
-              {submitting ? "Processing…" : `Confirm · ${formatPrice(total)}`}
+              {submitting ? "Processing…" : `Confirm · ${formatMmk(totalMmk)}`}
             </button>
           </Summary>
         </form>
