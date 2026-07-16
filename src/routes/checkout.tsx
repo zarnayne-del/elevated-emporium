@@ -94,7 +94,7 @@ function CheckoutPage() {
       return computeShippingMmk(src.address, src.city);
     } catch (e) {
       console.error("shipping calc failed:", e);
-      return 10_000; // safe fallback
+      return 0; // safe fallback: don't charge shipping if calc fails
     }
   }, [step, shipping, addressInput, cityInput, items.length]);
 
