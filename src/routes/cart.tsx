@@ -105,9 +105,7 @@ function CartPage() {
               </div>
               <div className="flex justify-between text-sm">
                 <span className="uppercase tracking-wider text-sand/70">Shipping</span>
-                <span className="tabular-nums">
-                  {shipping === 0 ? "FREE" : formatPrice(shipping)}
-                </span>
+                <span className="tabular-nums text-sand/60">Calculated at checkout</span>
               </div>
               <div className="border-t border-sand/20 pt-4 flex justify-between font-display text-2xl uppercase">
                 <span>Total</span>
@@ -121,7 +119,7 @@ function CartPage() {
               Secure Checkout →
             </Link>
             <p className="label-mono text-sand/40 mt-6 text-center">
-              Free shipping over 500,000 Ks
+              Free shipping within Yangon
             </p>
           </aside>
         </section>
