@@ -11,8 +11,8 @@ export const Route = createFileRoute("/cart")({
 
 function CartPage() {
   const { items, subtotal, count } = useCart();
-  const shipping = subtotal === 0 ? 0 : subtotal >= 15000 ? 0 : 800;
-  const total = subtotal + shipping;
+  // Shipping is calculated at checkout after the customer enters a location.
+  const total = subtotal;
 
   return (
     <SiteLayout>
