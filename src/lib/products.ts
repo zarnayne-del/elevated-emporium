@@ -50,11 +50,13 @@ export const SHIPPING_OTHER_MMK = 10_000;
 
 export function computeShippingMmk(address?: string | null, city?: string | null): number {
   try {
+    // Before the customer enters a shipping location, don't charge shipping.
+    const cityStr = (city ?? "").trim();
+    if (!cityStr) return 0;
     const haystack = `${address ?? ""} ${city ?? ""}`.toLowerCase();
-    if (!haystack.trim()) return SHIPPING_OTHER_MMK;
     return haystack.includes("yangon") ? SHIPPING_YANGON_MMK : SHIPPING_OTHER_MMK;
   } catch {
-    return SHIPPING_OTHER_MMK;
+    return 0;
   }
 }
 
