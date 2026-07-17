@@ -21,6 +21,7 @@ import { Route as OrderIdRouteImport } from './routes/order.$id'
 import { Route as AdminProductsRouteImport } from './routes/admin.products'
 import { Route as AdminGiveawayRouteImport } from './routes/admin.giveaway'
 import { Route as ApiPublicNotifyOrderRouteImport } from './routes/api/public/notify-order'
+import { Route as ApiPublicHooksMonthlyGiveawayDrawRouteImport } from './routes/api/public/hooks/monthly-giveaway-draw'
 
 const TrackRoute = TrackRouteImport.update({
   id: '/track',
@@ -82,6 +83,12 @@ const ApiPublicNotifyOrderRoute = ApiPublicNotifyOrderRouteImport.update({
   path: '/api/public/notify-order',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHooksMonthlyGiveawayDrawRoute =
+  ApiPublicHooksMonthlyGiveawayDrawRouteImport.update({
+    id: '/api/public/hooks/monthly-giveaway-draw',
+    path: '/api/public/hooks/monthly-giveaway-draw',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -96,6 +103,7 @@ export interface FileRoutesByFullPath {
   '/products/$slug': typeof ProductsSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/api/public/notify-order': typeof ApiPublicNotifyOrderRoute
+  '/api/public/hooks/monthly-giveaway-draw': typeof ApiPublicHooksMonthlyGiveawayDrawRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -109,6 +117,7 @@ export interface FileRoutesByTo {
   '/products/$slug': typeof ProductsSlugRoute
   '/admin': typeof AdminIndexRoute
   '/api/public/notify-order': typeof ApiPublicNotifyOrderRoute
+  '/api/public/hooks/monthly-giveaway-draw': typeof ApiPublicHooksMonthlyGiveawayDrawRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -124,6 +133,7 @@ export interface FileRoutesById {
   '/products/$slug': typeof ProductsSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/api/public/notify-order': typeof ApiPublicNotifyOrderRoute
+  '/api/public/hooks/monthly-giveaway-draw': typeof ApiPublicHooksMonthlyGiveawayDrawRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -140,6 +150,7 @@ export interface FileRouteTypes {
     | '/products/$slug'
     | '/admin/'
     | '/api/public/notify-order'
+    | '/api/public/hooks/monthly-giveaway-draw'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -153,6 +164,7 @@ export interface FileRouteTypes {
     | '/products/$slug'
     | '/admin'
     | '/api/public/notify-order'
+    | '/api/public/hooks/monthly-giveaway-draw'
   id:
     | '__root__'
     | '/'
@@ -167,6 +179,7 @@ export interface FileRouteTypes {
     | '/products/$slug'
     | '/admin/'
     | '/api/public/notify-order'
+    | '/api/public/hooks/monthly-giveaway-draw'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -179,6 +192,7 @@ export interface RootRouteChildren {
   OrderIdRoute: typeof OrderIdRoute
   ProductsSlugRoute: typeof ProductsSlugRoute
   ApiPublicNotifyOrderRoute: typeof ApiPublicNotifyOrderRoute
+  ApiPublicHooksMonthlyGiveawayDrawRoute: typeof ApiPublicHooksMonthlyGiveawayDrawRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -267,6 +281,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicNotifyOrderRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/monthly-giveaway-draw': {
+      id: '/api/public/hooks/monthly-giveaway-draw'
+      path: '/api/public/hooks/monthly-giveaway-draw'
+      fullPath: '/api/public/hooks/monthly-giveaway-draw'
+      preLoaderRoute: typeof ApiPublicHooksMonthlyGiveawayDrawRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -294,6 +315,8 @@ const rootRouteChildren: RootRouteChildren = {
   OrderIdRoute: OrderIdRoute,
   ProductsSlugRoute: ProductsSlugRoute,
   ApiPublicNotifyOrderRoute: ApiPublicNotifyOrderRoute,
+  ApiPublicHooksMonthlyGiveawayDrawRoute:
+    ApiPublicHooksMonthlyGiveawayDrawRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -10,6 +10,7 @@ function AdminLayout() {
   const tabs = [
     { to: "/admin", label: "Orders", exact: true },
     { to: "/admin/products", label: "Products" },
+    { to: "/admin/giveaway", label: "Giveaway" },
   ];
   return (
     <div className="min-h-screen flex flex-col bg-sand text-forest">
