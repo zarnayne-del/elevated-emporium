@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { notifyOrder } from "@/lib/telegram.server";
-import { computeShippingMmk, mmkToCents } from "@/lib/products";
+import { computeShippingMmk, computeDeliveryMmk, mmkToCents } from "@/lib/products";
 
 const CheckoutSchema = z.object({
   phone_number: z.string().trim().min(5).max(32).regex(/^[+\d\s().-]+$/, "Invalid phone number"),
