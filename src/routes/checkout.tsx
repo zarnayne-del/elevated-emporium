@@ -229,7 +229,7 @@ function CheckoutPage() {
               </p>
             </fieldset>
           </div>
-          <Summary items={items} subtotalMmk={subtotalMmk} shippingMmk={shippingMmk} totalMmk={totalMmk}>
+          <Summary items={items} subtotalMmk={subtotalMmk} shippingMmk={shippingMmk} deliveryMmk={deliveryMmk} totalMmk={totalMmk}>
             <button type="submit" className="block w-full text-center py-5 bg-sand text-forest font-display uppercase tracking-[0.2em] text-xs hover:bg-safety hover:text-sand transition-colors cursor-pointer">
               Continue to Payment →
             </button>
@@ -289,7 +289,7 @@ function CheckoutPage() {
               ← Back to shipping
             </button>
           </div>
-          <Summary items={items} subtotalMmk={subtotalMmk} shippingMmk={shippingMmk} totalMmk={totalMmk}>
+          <Summary items={items} subtotalMmk={subtotalMmk} shippingMmk={shippingMmk} deliveryMmk={deliveryMmk} totalMmk={totalMmk}>
             <button
               type="submit"
               disabled={submitting}
