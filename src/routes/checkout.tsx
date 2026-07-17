@@ -7,9 +7,11 @@ import { useCart, clearCart } from "@/lib/cart-store";
 import {
   centsToMmk,
   computeShippingMmk,
+  computeDeliveryMmk,
   formatMmk,
   formatPrice,
   formatShipping,
+  formatDelivery,
 } from "@/lib/products";
 import { placeOrder } from "@/lib/checkout.functions";
 import { supabase } from "@/integrations/supabase/client";
