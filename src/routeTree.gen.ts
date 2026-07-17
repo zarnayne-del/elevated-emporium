@@ -19,6 +19,7 @@ import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as ProductsSlugRouteImport } from './routes/products.$slug'
 import { Route as OrderIdRouteImport } from './routes/order.$id'
 import { Route as AdminProductsRouteImport } from './routes/admin.products'
+import { Route as AdminGiveawayRouteImport } from './routes/admin.giveaway'
 import { Route as ApiPublicNotifyOrderRouteImport } from './routes/api/public/notify-order'
 
 const TrackRoute = TrackRouteImport.update({
@@ -71,6 +72,11 @@ const AdminProductsRoute = AdminProductsRouteImport.update({
   path: '/products',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminGiveawayRoute = AdminGiveawayRouteImport.update({
+  id: '/giveaway',
+  path: '/giveaway',
+  getParentRoute: () => AdminRoute,
+} as any)
 const ApiPublicNotifyOrderRoute = ApiPublicNotifyOrderRouteImport.update({
   id: '/api/public/notify-order',
   path: '/api/public/notify-order',
@@ -84,6 +90,7 @@ export interface FileRoutesByFullPath {
   '/checkout': typeof CheckoutRoute
   '/shop': typeof ShopRoute
   '/track': typeof TrackRoute
+  '/admin/giveaway': typeof AdminGiveawayRoute
   '/admin/products': typeof AdminProductsRoute
   '/order/$id': typeof OrderIdRoute
   '/products/$slug': typeof ProductsSlugRoute
@@ -96,6 +103,7 @@ export interface FileRoutesByTo {
   '/checkout': typeof CheckoutRoute
   '/shop': typeof ShopRoute
   '/track': typeof TrackRoute
+  '/admin/giveaway': typeof AdminGiveawayRoute
   '/admin/products': typeof AdminProductsRoute
   '/order/$id': typeof OrderIdRoute
   '/products/$slug': typeof ProductsSlugRoute
@@ -110,6 +118,7 @@ export interface FileRoutesById {
   '/checkout': typeof CheckoutRoute
   '/shop': typeof ShopRoute
   '/track': typeof TrackRoute
+  '/admin/giveaway': typeof AdminGiveawayRoute
   '/admin/products': typeof AdminProductsRoute
   '/order/$id': typeof OrderIdRoute
   '/products/$slug': typeof ProductsSlugRoute
@@ -125,6 +134,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/shop'
     | '/track'
+    | '/admin/giveaway'
     | '/admin/products'
     | '/order/$id'
     | '/products/$slug'
@@ -137,6 +147,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/shop'
     | '/track'
+    | '/admin/giveaway'
     | '/admin/products'
     | '/order/$id'
     | '/products/$slug'
@@ -150,6 +161,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/shop'
     | '/track'
+    | '/admin/giveaway'
     | '/admin/products'
     | '/order/$id'
     | '/products/$slug'
@@ -241,6 +253,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminProductsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/giveaway': {
+      id: '/admin/giveaway'
+      path: '/giveaway'
+      fullPath: '/admin/giveaway'
+      preLoaderRoute: typeof AdminGiveawayRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/api/public/notify-order': {
       id: '/api/public/notify-order'
       path: '/api/public/notify-order'
@@ -252,11 +271,13 @@ declare module '@tanstack/react-router' {
 }
 
 interface AdminRouteChildren {
+  AdminGiveawayRoute: typeof AdminGiveawayRoute
   AdminProductsRoute: typeof AdminProductsRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminGiveawayRoute: AdminGiveawayRoute,
   AdminProductsRoute: AdminProductsRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
