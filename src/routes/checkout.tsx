@@ -85,23 +85,26 @@ function CheckoutPage() {
   const [addressInput, setAddressInput] = useState("");
   const [cityInput, setCityInput] = useState("");
 
-  // Compute shipping (MMK) from the active step's inputs.
-  const shippingMmk = useMemo(() => {
+  // Compute shipping + delivery (MMK) from the active step's inputs.
+  const { shippingMmk, deliveryMmk } = useMemo(() => {
     try {
       const src =
         step === "payment" && shipping
           ? { address: shipping.shipping_address, city: shipping.shipping_city }
           : { address: addressInput, city: cityInput };
-      if (!items.length) return 0;
-      return computeShippingMmk(src.address, src.city);
+      if (!items.length) return { shippingMmk: 0, deliveryMmk: 0 };
+      return {
+        shippingMmk: computeShippingMmk(src.address, src.city),
+        deliveryMmk: computeDeliveryMmk(src.address, src.city),
+      };
     } catch (e) {
       console.error("shipping calc failed:", e);
-      return 0; // safe fallback: don't charge shipping if calc fails
+      return { shippingMmk: 0, deliveryMmk: 0 };
     }
   }, [step, shipping, addressInput, cityInput, items.length]);
 
   const subtotalMmk = centsToMmk(subtotal);
-  const totalMmk = subtotalMmk + shippingMmk;
+  const totalMmk = subtotalMmk + shippingMmk + deliveryMmk;
 
   if (items.length === 0) {
     return (
