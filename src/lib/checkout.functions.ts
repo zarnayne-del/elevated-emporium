@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { notifyOrder } from "@/lib/telegram.server";
-import { computeShippingMmk, mmkToCents } from "@/lib/products";
+import { computeShippingMmk, computeDeliveryMmk, mmkToCents } from "@/lib/products";
 
 const CheckoutSchema = z.object({
   phone_number: z.string().trim().min(5).max(32).regex(/^[+\d\s().-]+$/, "Invalid phone number"),
@@ -62,8 +62,10 @@ export const placeOrder = createServerFn({ method: "POST" })
       0
     );
     const shipping_mmk = computeShippingMmk(data.shipping_address, data.shipping_city);
+    const delivery_mmk = computeDeliveryMmk(data.shipping_address, data.shipping_city);
     const shipping_cents = mmkToCents(shipping_mmk);
-    const total_cents = subtotal_cents + shipping_cents;
+    const delivery_cents = mmkToCents(delivery_mmk);
+    const total_cents = subtotal_cents + shipping_cents + delivery_cents;
 
     const { data: order, error: orderErr } = await supabaseAdmin
       .from("orders")
@@ -74,9 +76,10 @@ export const placeOrder = createServerFn({ method: "POST" })
         shipping_city: data.shipping_city,
         subtotal_cents,
         shipping_cents,
+        delivery_cents,
         total_cents,
         payment_screenshot_url: data.payment_screenshot_url,
-      })
+      } as never)
       .select("id, order_number, total_cents")
       .single();
 

@@ -41,26 +41,43 @@ export const formatMmk = (mmk: number) =>
 export const formatPrice = (cents: number) => formatMmk(centsToMmk(cents));
 
 /**
- * Shipping rules (MMK):
- *   - Address or City contains "Yangon" → Free (0)
- *   - Everywhere else in Myanmar        → 10,000 Ks
+ * Shipping & delivery rules (MMK):
+ *   Yangon / Yangon Region: Shipping = Free, Delivery = 0
+ *   Other Myanmar cities:   Shipping = 10,000, Delivery = 3,000
+ * Before a city is entered, both are 0.
  */
 export const SHIPPING_YANGON_MMK = 0;
 export const SHIPPING_OTHER_MMK = 10_000;
+export const DELIVERY_YANGON_MMK = 0;
+export const DELIVERY_OTHER_MMK = 3_000;
+
+function isYangon(address?: string | null, city?: string | null): boolean {
+  return `${address ?? ""} ${city ?? ""}`.toLowerCase().includes("yangon");
+}
 
 export function computeShippingMmk(address?: string | null, city?: string | null): number {
   try {
-    // Before the customer enters a shipping location, don't charge shipping.
-    const cityStr = (city ?? "").trim();
-    if (!cityStr) return 0;
-    const haystack = `${address ?? ""} ${city ?? ""}`.toLowerCase();
-    return haystack.includes("yangon") ? SHIPPING_YANGON_MMK : SHIPPING_OTHER_MMK;
+    if (!(city ?? "").trim()) return 0;
+    return isYangon(address, city) ? SHIPPING_YANGON_MMK : SHIPPING_OTHER_MMK;
+  } catch {
+    return 0;
+  }
+}
+
+export function computeDeliveryMmk(address?: string | null, city?: string | null): number {
+  try {
+    if (!(city ?? "").trim()) return 0;
+    return isYangon(address, city) ? DELIVERY_YANGON_MMK : DELIVERY_OTHER_MMK;
   } catch {
     return 0;
   }
 }
 
 export function formatShipping(mmk: number): string {
+  return mmk === 0 ? "Free" : formatMmk(mmk);
+}
+
+export function formatDelivery(mmk: number): string {
   return mmk === 0 ? "Free" : formatMmk(mmk);
 }
 

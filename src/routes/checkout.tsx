@@ -7,9 +7,11 @@ import { useCart, clearCart } from "@/lib/cart-store";
 import {
   centsToMmk,
   computeShippingMmk,
+  computeDeliveryMmk,
   formatMmk,
   formatPrice,
   formatShipping,
+  formatDelivery,
 } from "@/lib/products";
 import { placeOrder } from "@/lib/checkout.functions";
 import { supabase } from "@/integrations/supabase/client";
@@ -83,23 +85,26 @@ function CheckoutPage() {
   const [addressInput, setAddressInput] = useState("");
   const [cityInput, setCityInput] = useState("");
 
-  // Compute shipping (MMK) from the active step's inputs.
-  const shippingMmk = useMemo(() => {
+  // Compute shipping + delivery (MMK) from the active step's inputs.
+  const { shippingMmk, deliveryMmk } = useMemo(() => {
     try {
       const src =
         step === "payment" && shipping
           ? { address: shipping.shipping_address, city: shipping.shipping_city }
           : { address: addressInput, city: cityInput };
-      if (!items.length) return 0;
-      return computeShippingMmk(src.address, src.city);
+      if (!items.length) return { shippingMmk: 0, deliveryMmk: 0 };
+      return {
+        shippingMmk: computeShippingMmk(src.address, src.city),
+        deliveryMmk: computeDeliveryMmk(src.address, src.city),
+      };
     } catch (e) {
       console.error("shipping calc failed:", e);
-      return 0; // safe fallback: don't charge shipping if calc fails
+      return { shippingMmk: 0, deliveryMmk: 0 };
     }
   }, [step, shipping, addressInput, cityInput, items.length]);
 
   const subtotalMmk = centsToMmk(subtotal);
-  const totalMmk = subtotalMmk + shippingMmk;
+  const totalMmk = subtotalMmk + shippingMmk + deliveryMmk;
 
   if (items.length === 0) {
     return (
@@ -224,7 +229,7 @@ function CheckoutPage() {
               </p>
             </fieldset>
           </div>
-          <Summary items={items} subtotalMmk={subtotalMmk} shippingMmk={shippingMmk} totalMmk={totalMmk}>
+          <Summary items={items} subtotalMmk={subtotalMmk} shippingMmk={shippingMmk} deliveryMmk={deliveryMmk} totalMmk={totalMmk}>
             <button type="submit" className="block w-full text-center py-5 bg-sand text-forest font-display uppercase tracking-[0.2em] text-xs hover:bg-safety hover:text-sand transition-colors cursor-pointer">
               Continue to Payment →
             </button>
@@ -284,7 +289,7 @@ function CheckoutPage() {
               ← Back to shipping
             </button>
           </div>
-          <Summary items={items} subtotalMmk={subtotalMmk} shippingMmk={shippingMmk} totalMmk={totalMmk}>
+          <Summary items={items} subtotalMmk={subtotalMmk} shippingMmk={shippingMmk} deliveryMmk={deliveryMmk} totalMmk={totalMmk}>
             <button
               type="submit"
               disabled={submitting}
@@ -317,12 +322,14 @@ function Summary({
   items,
   subtotalMmk,
   shippingMmk,
+  deliveryMmk,
   totalMmk,
   children,
 }: {
   items: ReturnType<typeof useCart>["items"];
   subtotalMmk: number;
   shippingMmk: number;
+  deliveryMmk: number;
   totalMmk: number;
   children: React.ReactNode;
 }) {
@@ -344,7 +351,8 @@ function Summary({
       </ul>
       <div className="border-t border-sand/20 pt-4 space-y-2 mb-6 text-sm">
         <Row label="Subtotal" value={formatMmk(subtotalMmk)} />
-        <Row label="Shipping" value={formatShipping(shippingMmk)} />
+        <Row label="Shipping Fee" value={formatShipping(shippingMmk)} />
+        <Row label="Delivery Fee" value={formatDelivery(deliveryMmk)} />
         <div className="border-t border-sand/20 pt-3 flex justify-between font-display text-xl uppercase">
           <span>Total</span>
           <span className="tabular-nums">{formatMmk(totalMmk)}</span>
