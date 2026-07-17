@@ -14,6 +14,89 @@ export type Database = {
   }
   public: {
     Tables: {
+      giveaway_entries: {
+        Row: {
+          created_at: string
+          customer_name: string
+          id: string
+          month_key: string
+          order_id: string
+          phone_number: string | null
+        }
+        Insert: {
+          created_at?: string
+          customer_name: string
+          id?: string
+          month_key: string
+          order_id: string
+          phone_number?: string | null
+        }
+        Update: {
+          created_at?: string
+          customer_name?: string
+          id?: string
+          month_key?: string
+          order_id?: string
+          phone_number?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "giveaway_entries_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: true
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      giveaway_winners: {
+        Row: {
+          customer_name: string
+          drawn_at: string
+          drawn_manually: boolean
+          entry_id: string | null
+          id: string
+          month_key: string
+          order_id: string | null
+          phone_number: string | null
+        }
+        Insert: {
+          customer_name: string
+          drawn_at?: string
+          drawn_manually?: boolean
+          entry_id?: string | null
+          id?: string
+          month_key: string
+          order_id?: string | null
+          phone_number?: string | null
+        }
+        Update: {
+          customer_name?: string
+          drawn_at?: string
+          drawn_manually?: boolean
+          entry_id?: string | null
+          id?: string
+          month_key?: string
+          order_id?: string | null
+          phone_number?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "giveaway_winners_entry_id_fkey"
+            columns: ["entry_id"]
+            isOneToOne: false
+            referencedRelation: "giveaway_entries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "giveaway_winners_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_items: {
         Row: {
           created_at: string
@@ -65,6 +148,7 @@ export type Database = {
       orders: {
         Row: {
           created_at: string
+          delivery_cents: number
           email: string | null
           id: string
           notified_at: string | null
@@ -83,6 +167,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          delivery_cents?: number
           email?: string | null
           id?: string
           notified_at?: string | null
@@ -101,6 +186,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          delivery_cents?: number
           email?: string | null
           id?: string
           notified_at?: string | null
