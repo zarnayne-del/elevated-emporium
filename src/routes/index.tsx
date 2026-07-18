@@ -41,11 +41,10 @@ function HomePage() {
           Collection 01 / SS24
         </span>
         <h1 className="text-6xl md:text-8xl lg:text-[10rem] font-display font-bold uppercase leading-[0.85] tracking-tighter mb-8">
-          Elevated<br />Botanics
+          WALKI<br />TALKIE
         </h1>
         <p className="max-w-xl text-base md:text-lg leading-relaxed mb-10 text-forest/80">
-          A symbiotic fusion of premium cultivars and architectural
-          silhouettes. Designed for the high-functioning aestheticist.
+          Itemအကုန်ကြည့်ရန် Shop Flowerကိုနှိပ်ပါ.
         </p>
         <div className="flex flex-wrap gap-4">
           <Link to="/shop" search={{ category: "Flower" }} className="btn-forest">
