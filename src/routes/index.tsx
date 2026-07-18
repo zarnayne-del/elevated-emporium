@@ -57,6 +57,9 @@ function HomePage() {
         </div>
       </header>
 
+      {/* Monthly Giveaway */}
+      <GiveawaySection />
+
       {/* Featured products */}
       <section className="px-6 md:px-8 py-16 md:py-24">
         <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mb-12">
