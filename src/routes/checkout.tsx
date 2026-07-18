@@ -351,7 +351,7 @@ function Summary({
       </ul>
       <div className="border-t border-sand/20 pt-4 space-y-2 mb-6 text-sm">
         <Row label="Subtotal" value={formatMmk(subtotalMmk)} />
-        <Row label="Shipping Fee" value={formatShipping(shippingMmk)} />
+        <Row label="Packing Fees" value={formatShipping(shippingMmk)} />
         <Row label="Delivery Fee" value={formatDelivery(deliveryMmk)} />
         <div className="border-t border-sand/20 pt-3 flex justify-between font-display text-xl uppercase">
           <span>Total</span>

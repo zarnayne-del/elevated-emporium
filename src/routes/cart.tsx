@@ -104,7 +104,7 @@ function CartPage() {
                 <span className="tabular-nums">{formatPrice(subtotal)}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="uppercase tracking-wider text-sand/70">Shipping</span>
+                <span className="uppercase tracking-wider text-sand/70">Packing Fees</span>
                 <span className="tabular-nums text-sand/60">Calculated at checkout</span>
               </div>
               <div className="border-t border-sand/20 pt-4 flex justify-between font-display text-2xl uppercase">

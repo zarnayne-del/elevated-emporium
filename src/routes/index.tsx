@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteLayout } from "@/components/SiteLayout";
+import { GiveawaySection } from "@/components/GiveawaySection";
 import { type Product, productImage, formatPrice, tileBg } from "@/lib/products";
 
 export const Route = createFileRoute("/")({
@@ -55,6 +56,9 @@ function HomePage() {
           </Link>
         </div>
       </header>
+
+      {/* Monthly Giveaway */}
+      <GiveawaySection />
 
       {/* Featured products */}
       <section className="px-6 md:px-8 py-16 md:py-24">
