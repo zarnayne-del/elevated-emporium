@@ -22,6 +22,7 @@ export const Route = createFileRoute("/products/$slug")({
 function ProductPage() {
   const { slug } = Route.useParams();
   const navigate = useNavigate();
+  const [activeIdx, setActiveIdx] = useState(0);
 
   const { data: product, isLoading, isError } = useQuery({
     queryKey: ["products", slug],
@@ -71,8 +72,8 @@ function ProductPage() {
   };
 
   const images = productImages_(product);
-  const [activeIdx, setActiveIdx] = useState(0);
   const activeImg = images[activeIdx] ?? images[0];
+
 
   return (
     <SiteLayout>
