@@ -6,7 +6,7 @@ import { formatPrice, productImages } from "@/lib/products";
 
 export const Route = createFileRoute("/cart")({
   component: CartPage,
-  head: () => ({ meta: [{ title: "Cart — Kush & Cotton" }] }),
+  head: () => ({ meta: [{ title: "Cart — Walki Talkie" }] }),
 });
 
 function CartPage() {

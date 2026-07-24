@@ -9,7 +9,7 @@ export const Route = createFileRoute("/")({
   component: HomePage,
   head: () => ({
     meta: [
-      { title: "Kush & Cotton — Elevated Botanics, Collection 01" },
+      { title: "Walki Talkie — Elevated Botanics, Collection 01" },
       {
         name: "description",
         content:

@@ -22,7 +22,7 @@ import qrWavepay from "@/assets/qr-wavepay.jpg";
 
 export const Route = createFileRoute("/checkout")({
   component: CheckoutPage,
-  head: () => ({ meta: [{ title: "Checkout — Kush & Cotton" }] }),
+  head: () => ({ meta: [{ title: "Checkout — Walki Talkie" }] }),
   errorComponent: CheckoutErrorBoundary,
 });
 

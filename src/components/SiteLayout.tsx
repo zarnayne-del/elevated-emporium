@@ -28,7 +28,7 @@ export function SiteHeader() {
         to="/"
         className="font-display text-xl md:text-2xl font-bold tracking-tighter uppercase"
       >
-        Kush &amp; Cotton
+        Walki Talkie
       </Link>
       <div className="hidden md:flex gap-10 uppercase text-[11px] font-semibold tracking-[0.25em]">
         {navLinks}
@@ -70,7 +70,7 @@ export function SiteFooter() {
   return (
     <footer className="border-t-2 border-forest px-6 md:px-8 py-6 flex flex-col md:flex-row gap-3 md:gap-0 justify-between items-center text-forest">
       <div className="label-mono">
-        © {new Date().getFullYear()} Kush &amp; Cotton / All Rights Reserved
+        © {new Date().getFullYear()} Walki Talkie / All Rights Reserved
       </div>
       <div className="flex gap-6 label-mono items-center">
         <a href="#" className="hover:text-safety">Privacy</a>

@@ -14,11 +14,11 @@ export const Route = createFileRoute("/shop")({
   validateSearch: (s) => search.parse(s),
   head: () => ({
     meta: [
-      { title: "Shop — Kush & Cotton" },
+      { title: "Shop — Walki Talkie" },
       {
         name: "description",
         content:
-          "Browse premium cannabis flower, streetwear apparel, and curated accessories from Kush & Cotton.",
+          "Browse premium cannabis flower, streetwear apparel, and curated accessories from Walki Talkie.",
       },
     ],
   }),

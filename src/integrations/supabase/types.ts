@@ -49,6 +49,42 @@ export type Database = {
           },
         ]
       }
+      giveaway_prizes: {
+        Row: {
+          created_at: string
+          description: string | null
+          end_date: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean
+          prize_value: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          prize_value?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          prize_value?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       giveaway_winners: {
         Row: {
           customer_name: string

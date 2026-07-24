@@ -2,7 +2,7 @@ import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-rout
 
 export const Route = createFileRoute("/admin")({
   component: AdminLayout,
-  head: () => ({ meta: [{ title: "Admin — Kush & Cotton" }] }),
+  head: () => ({ meta: [{ title: "Admin — Walki Talkie" }] }),
 });
 
 function AdminLayout() {
@@ -17,7 +17,7 @@ function AdminLayout() {
       <header className="border-b-2 border-forest px-6 md:px-8 py-5 flex justify-between items-center">
         <div className="flex items-center gap-4">
           <Link to="/" className="font-display text-xl uppercase tracking-tighter">
-            Kush &amp; Cotton
+            Walki Talkie
           </Link>
           <span className="label-mono bg-forest text-sand px-2 py-1">ADMIN</span>
         </div>

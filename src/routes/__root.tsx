@@ -67,13 +67,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Kush & Cotton — Premium Cannabis & Streetwear" },
+      { title: "Walki Talkie — Premium Cannabis & Streetwear" },
       {
         name: "description",
         content:
           "A symbiotic fusion of premium cultivars and architectural silhouettes. Curated cannabis goods and streetwear for the deliberate enthusiast.",
       },
-      { property: "og:title", content: "Kush & Cotton — Premium Cannabis & Streetwear" },
+      { property: "og:title", content: "Walki Talkie — Premium Cannabis & Streetwear" },
       {
         property: "og:description",
         content:
@@ -81,7 +81,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Kush & Cotton — Premium Cannabis & Streetwear" },
+      { name: "twitter:title", content: "Walki Talkie — Premium Cannabis & Streetwear" },
       { name: "description", content: "E-commerce platform for cannabis and streetwear, featuring a modern UI and secure checkout." },
       { property: "og:description", content: "E-commerce platform for cannabis and streetwear, featuring a modern UI and secure checkout." },
       { name: "twitter:description", content: "E-commerce platform for cannabis and streetwear, featuring a modern UI and secure checkout." },
