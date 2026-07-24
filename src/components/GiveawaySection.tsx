@@ -199,14 +199,28 @@ export function GiveawaySection() {
           {/* Prize */}
           <div className="p-6 md:p-8">
             <p className="label-mono text-forest/60 mb-4">Current Prize</p>
-            <div className="aspect-square border-2 border-forest bg-forest text-sand flex items-center justify-center mb-4">
-              <span className="font-display text-7xl">🎁</span>
+            <div className="aspect-square border-2 border-forest bg-forest text-sand flex items-center justify-center mb-4 overflow-hidden">
+              {prize?.image_url ? (
+                <img
+                  src={prize.image_url}
+                  alt={prize.title}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="font-display text-7xl">🎁</span>
+              )}
             </div>
             <h3 className="font-display text-2xl uppercase tracking-tighter">
-              Kush &amp; Cotton Prize Pack
+              {prize?.title ?? "Walki Talkie Prize Pack"}
             </h3>
-            <p className="label-mono text-forest/60 mt-1">Value: 150,000 Ks</p>
+            {prize?.prize_value && (
+              <p className="label-mono text-forest/60 mt-1">Value: {prize.prize_value}</p>
+            )}
+            {prize?.description && (
+              <p className="text-sm text-forest/70 mt-2">{prize.description}</p>
+            )}
           </div>
+
 
           {/* Countdown + Stats */}
           <div className="p-6 md:p-8 space-y-6">
