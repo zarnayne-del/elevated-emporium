@@ -220,3 +220,271 @@ function Stat({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
+
+function toDatetimeLocalValue(iso: string | null): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return "";
+  const tz = d.getTimezoneOffset() * 60000;
+  return new Date(d.getTime() - tz).toISOString().slice(0, 16);
+}
+
+function PrizeManager() {
+  const qc = useQueryClient();
+  const [editing, setEditing] = useState<Prize | null>(null);
+  const [file, setFile] = useState<File | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [form, setForm] = useState({
+    title: "",
+    description: "",
+    prize_value: "",
+    image_url: "",
+    end_date: "",
+    is_active: true,
+  });
+
+  const { data: prizes } = useQuery({
+    queryKey: ["admin", "giveaway_prizes"],
+    queryFn: async () => {
+      const { data, error } = await (supabase as never as typeof supabase)
+        .from("giveaway_prizes" as never)
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as unknown as Prize[];
+    },
+  });
+
+  useEffect(() => {
+    if (editing) {
+      setForm({
+        title: editing.title,
+        description: editing.description ?? "",
+        prize_value: editing.prize_value ?? "",
+        image_url: editing.image_url ?? "",
+        end_date: toDatetimeLocalValue(editing.end_date),
+        is_active: editing.is_active,
+      });
+      setFile(null);
+    }
+  }, [editing]);
+
+  const reset = () => {
+    setEditing(null);
+    setFile(null);
+    setForm({ title: "", description: "", prize_value: "", image_url: "", end_date: "", is_active: true });
+  };
+
+  const uploadImage = async (): Promise<string | null> => {
+    if (!file) return form.image_url || null;
+    const ext = file.name.split(".").pop()?.toLowerCase() || "png";
+    const path = `prizes/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const { error } = await supabase.storage.from("product-images").upload(path, file, { contentType: file.type });
+    if (error) throw error;
+    const { data } = supabase.storage.from("product-images").getPublicUrl(path);
+    return data.publicUrl;
+  };
+
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.title.trim()) return toast.error("Title is required");
+    setSubmitting(true);
+    try {
+      const image_url = await uploadImage();
+      const payload = {
+        title: form.title.trim(),
+        description: form.description.trim() || null,
+        prize_value: form.prize_value.trim(),
+        image_url: image_url || null,
+        end_date: form.end_date ? new Date(form.end_date).toISOString() : null,
+        is_active: form.is_active,
+      };
+      if (editing) {
+        const { error } = await (supabase as never as typeof supabase)
+          .from("giveaway_prizes" as never)
+          .update(payload as never)
+          .eq("id", editing.id);
+        if (error) throw error;
+        toast.success("Prize updated");
+      } else {
+        const { error } = await (supabase as never as typeof supabase)
+          .from("giveaway_prizes" as never)
+          .insert(payload as never);
+        if (error) throw error;
+        toast.success("Prize created");
+      }
+      reset();
+      qc.invalidateQueries({ queryKey: ["admin", "giveaway_prizes"] });
+      qc.invalidateQueries({ queryKey: ["giveaway", "active-prize"] });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Save failed");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const activate = async (p: Prize) => {
+    const { error } = await (supabase as never as typeof supabase)
+      .from("giveaway_prizes" as never)
+      .update({ is_active: true } as never)
+      .eq("id", p.id);
+    if (error) return toast.error(error.message);
+    toast.success("Prize activated");
+    qc.invalidateQueries({ queryKey: ["admin", "giveaway_prizes"] });
+    qc.invalidateQueries({ queryKey: ["giveaway", "active-prize"] });
+  };
+
+  const remove = async (p: Prize) => {
+    if (!confirm(`Delete prize "${p.title}"?`)) return;
+    const { error } = await (supabase as never as typeof supabase)
+      .from("giveaway_prizes" as never)
+      .delete()
+      .eq("id", p.id);
+    if (error) return toast.error(error.message);
+    toast.success("Prize deleted");
+    qc.invalidateQueries({ queryKey: ["admin", "giveaway_prizes"] });
+    qc.invalidateQueries({ queryKey: ["giveaway", "active-prize"] });
+  };
+
+  return (
+    <div className="border-2 border-forest">
+      <div className="px-6 py-4 border-b-2 border-forest bg-forest text-sand flex justify-between items-center">
+        <h2 className="font-display uppercase text-xl tracking-tighter">Giveaway Prize Management</h2>
+        {editing && (
+          <button onClick={reset} className="label-mono hover:text-safety">
+            + New Prize
+          </button>
+        )}
+      </div>
+
+      <form onSubmit={onSubmit} className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="md:col-span-2">
+          <p className="label-mono text-forest/60 mb-3">
+            {editing ? `Editing: ${editing.title}` : "Add a new giveaway prize"}
+          </p>
+        </div>
+        <label className="flex flex-col gap-1">
+          <span className="label-mono text-forest/60">Title *</span>
+          <input
+            required
+            value={form.title}
+            onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+            className="border-2 border-forest bg-sand px-3 py-2"
+          />
+        </label>
+        <label className="flex flex-col gap-1">
+          <span className="label-mono text-forest/60">Value (e.g. 150,000 Ks)</span>
+          <input
+            value={form.prize_value}
+            onChange={(e) => setForm((f) => ({ ...f, prize_value: e.target.value }))}
+            className="border-2 border-forest bg-sand px-3 py-2"
+          />
+        </label>
+        <label className="flex flex-col gap-1 md:col-span-2">
+          <span className="label-mono text-forest/60">Description</span>
+          <textarea
+            rows={2}
+            value={form.description}
+            onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+            className="border-2 border-forest bg-sand px-3 py-2"
+          />
+        </label>
+        <label className="flex flex-col gap-1">
+          <span className="label-mono text-forest/60">Prize image</span>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+            className="border-2 border-forest bg-sand px-3 py-2"
+          />
+          {form.image_url && !file && (
+            <img src={form.image_url} alt="" className="mt-2 h-24 w-24 object-cover border-2 border-forest" />
+          )}
+        </label>
+        <label className="flex flex-col gap-1">
+          <span className="label-mono text-forest/60">End date/time</span>
+          <input
+            type="datetime-local"
+            value={form.end_date}
+            onChange={(e) => setForm((f) => ({ ...f, end_date: e.target.value }))}
+            className="border-2 border-forest bg-sand px-3 py-2"
+          />
+        </label>
+        <label className="flex items-center gap-2 md:col-span-2">
+          <input
+            type="checkbox"
+            checked={form.is_active}
+            onChange={(e) => setForm((f) => ({ ...f, is_active: e.target.checked }))}
+            className="h-5 w-5"
+          />
+          <span className="label-mono">Active (shown on public giveaway page)</span>
+        </label>
+        <div className="md:col-span-2 flex gap-3">
+          <button type="submit" disabled={submitting} className="btn-forest disabled:opacity-50">
+            {submitting ? "Saving…" : editing ? "Update Prize" : "Create Prize"}
+          </button>
+          {editing && (
+            <button type="button" onClick={reset} className="btn-outline">Cancel</button>
+          )}
+        </div>
+      </form>
+
+      <div className="border-t-2 border-forest">
+        {(prizes ?? []).length === 0 ? (
+          <div className="p-6 label-mono text-forest/60 text-center">No prizes yet.</div>
+        ) : (
+          <table className="w-full text-sm">
+            <thead className="bg-forest/5 label-mono text-left">
+              <tr>
+                <th className="px-4 py-3">Image</th>
+                <th className="px-4 py-3">Title</th>
+                <th className="px-4 py-3">Value</th>
+                <th className="px-4 py-3">End Date</th>
+                <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y-2 divide-forest">
+              {(prizes ?? []).map((p) => (
+                <tr key={p.id}>
+                  <td className="px-4 py-3">
+                    {p.image_url ? (
+                      <img src={p.image_url} alt="" className="h-12 w-12 object-cover border border-forest" />
+                    ) : (
+                      <span className="text-2xl">🎁</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 font-semibold">{p.title}</td>
+                  <td className="px-4 py-3">{p.prize_value || "—"}</td>
+                  <td className="px-4 py-3 label-mono text-forest/60">
+                    {p.end_date ? new Date(p.end_date).toLocaleString() : "—"}
+                  </td>
+                  <td className="px-4 py-3">
+                    {p.is_active ? (
+                      <span className="label-mono bg-safety text-forest px-2 py-1">ACTIVE</span>
+                    ) : (
+                      <span className="label-mono text-forest/50">inactive</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-right space-x-2">
+                    {!p.is_active && (
+                      <button onClick={() => activate(p)} className="label-mono hover:text-safety">
+                        Activate
+                      </button>
+                    )}
+                    <button onClick={() => setEditing(p)} className="label-mono hover:text-safety">
+                      Edit
+                    </button>
+                    <button onClick={() => remove(p)} className="label-mono hover:text-red-600">
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  );
+}
