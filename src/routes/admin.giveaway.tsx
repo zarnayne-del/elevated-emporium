@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { drawGiveawayWinner } from "@/lib/giveaway.functions";
 import { toast } from "sonner";
@@ -9,6 +9,19 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/admin/giveaway")({
   component: AdminGiveawayPage,
 });
+
+type Prize = {
+  id: string;
+  title: string;
+  description: string | null;
+  prize_value: string;
+  image_url: string | null;
+  end_date: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
 
 type Entry = {
   id: string;
