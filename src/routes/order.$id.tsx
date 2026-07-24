@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/order/$id")({
   component: OrderConfirmedPage,
-  head: () => ({ meta: [{ title: "Order Confirmed — Kush & Cotton" }] }),
+  head: () => ({ meta: [{ title: "Order Confirmed — Walki Talkie" }] }),
 });
 
 function OrderConfirmedPage() {

@@ -10,10 +10,10 @@ export const Route = createFileRoute("/track")({
   component: TrackPage,
   head: () => ({
     meta: [
-      { title: "Track Order — Kush & Cotton" },
+      { title: "Track Order — Walki Talkie" },
       {
         name: "description",
-        content: "Look up the status of your Kush & Cotton orders by phone number.",
+        content: "Look up the status of your Walki Talkie orders by phone number.",
       },
     ],
   }),

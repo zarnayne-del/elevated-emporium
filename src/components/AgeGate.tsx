@@ -37,7 +37,7 @@ export function AgeGate() {
           You must be<br />18 or older
         </h2>
         <p className="text-sm leading-relaxed mb-10 text-forest/80">
-          Kush &amp; Cotton sells regulated cannabis goods and curated
+          Walki Talkie sells regulated cannabis goods and curated
           streetwear. Please confirm your age to continue.
         </p>
         <div className="grid grid-cols-2 gap-3">
