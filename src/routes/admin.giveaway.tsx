@@ -106,6 +106,9 @@ function AdminGiveawayPage() {
         </h1>
       </header>
 
+      <PrizeManager />
+
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Stat label="Total Entries (All Time)" value={String(entries?.length ?? 0)} />
         <Stat label={`Entries This Month (${month})`} value={String(currentMonthEntries.length)} />
