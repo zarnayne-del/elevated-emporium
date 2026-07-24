@@ -56,13 +56,44 @@ function useCountdown(target: Date) {
   };
 }
 
+type Prize = {
+  id: string;
+  title: string;
+  description: string | null;
+  prize_value: string;
+  image_url: string | null;
+  end_date: string | null;
+  is_active: boolean;
+};
+
 export function GiveawaySection() {
   const currentMonth = monthKey(new Date());
+
+  const { data: prize } = useQuery({
+    queryKey: ["giveaway", "active-prize"],
+    queryFn: async () => {
+      const { data, error } = await (supabase as never as typeof supabase)
+        .from("giveaway_prizes" as never)
+        .select("*")
+        .eq("is_active", true)
+        .order("updated_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (error) throw error;
+      return (data ?? null) as unknown as Prize | null;
+    },
+  });
+
   const drawDate = useMemo(() => {
+    if (prize?.end_date) return new Date(prize.end_date);
     const end = endOfMonthUTC();
-    return new Date(end.getTime() - 24 * 3600 * 1000); // last day of month UTC
-  }, []);
-  const countdown = useCountdown(endOfMonthUTC());
+    return new Date(end.getTime() - 24 * 3600 * 1000);
+  }, [prize?.end_date]);
+  const countdownTarget = useMemo(
+    () => (prize?.end_date ? new Date(prize.end_date) : endOfMonthUTC()),
+    [prize?.end_date],
+  );
+  const countdown = useCountdown(countdownTarget);
 
   const { data: entries } = useQuery({
     queryKey: ["giveaway", "entries", currentMonth],
