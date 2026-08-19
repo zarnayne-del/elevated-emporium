@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
-import { supabase } from "@/integrations/supabase/client";
+import { fetchProducts } from "@/lib/product-fetch";
 import { SiteLayout } from "@/components/SiteLayout";
 import { type Product, productImage, formatPrice, tileBg } from "@/lib/products";
 
@@ -40,7 +40,7 @@ function ShopPage() {
 
 
   const filtered = category
-    ? products?.filter((p) => p.category === category)
+    ? products?.filter((p: Product) => p.category === category)
     : products;
 
   return (
@@ -77,8 +77,20 @@ function ShopPage() {
         {isLoading && (
           <p className="label-mono text-forest/60">Loading inventory…</p>
         )}
+        {isError && (
+          <div className="border-2 border-forest p-6 mb-8">
+            <p className="label-mono text-safety mb-2">Connection problem</p>
+            <p className="text-sm text-forest/70 mb-4">
+              {(error as Error)?.message ??
+                "We couldn't reach the catalog. This can happen on a weak mobile data signal."}
+            </p>
+            <button onClick={() => refetch()} className="btn-forest" disabled={isFetching}>
+              {isFetching ? "Retrying…" : "Retry"}
+            </button>
+          </div>
+        )}
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
-          {filtered?.map((p) => (
+          {filtered?.map((p: Product) => (
             <Link
               key={p.id}
               to="/products/$slug"
