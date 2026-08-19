@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { fetchProducts } from "@/lib/product-fetch";
 import { SiteLayout } from "@/components/SiteLayout";
 import { type Product, productImages_, formatPrice, tileBg } from "@/lib/products";
 import { addToCart } from "@/lib/cart-store";
@@ -27,15 +27,14 @@ function ProductPage() {
   const { data: product, isLoading, isError } = useQuery({
     queryKey: ["products", slug],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("products")
-        .select("*")
-        .eq("slug", slug)
-        .maybeSingle();
-      if (error) throw error;
+      const rows = await fetchProducts({ slug });
+      const data = rows[0];
       if (!data) throw notFound();
       return data as Product;
     },
+    retry: 3,
+    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 8000),
+    staleTime: 60_000,
   });
 
   if (isLoading) {

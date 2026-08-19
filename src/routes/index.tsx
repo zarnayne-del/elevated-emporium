@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { fetchProducts } from "@/lib/product-fetch";
 import { SiteLayout } from "@/components/SiteLayout";
 import { GiveawaySection } from "@/components/GiveawaySection";
 import { type Product, productImage, formatPrice, tileBg } from "@/lib/products";
@@ -22,15 +22,10 @@ export const Route = createFileRoute("/")({
 function HomePage() {
   const { data: products } = useQuery({
     queryKey: ["products", "featured"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("products")
-        .select("*")
-        .order("sort_order", { ascending: true })
-        .limit(4);
-      if (error) throw error;
-      return data as Product[];
-    },
+    queryFn: () => fetchProducts({ limit: 4 }),
+    retry: 3,
+    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 8000),
+    staleTime: 60_000,
   });
 
   return (
