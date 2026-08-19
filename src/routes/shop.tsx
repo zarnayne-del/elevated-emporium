@@ -30,17 +30,14 @@ function ShopPage() {
   const { category } = Route.useSearch();
   const navigate = Route.useNavigate();
 
-  const { data: products, isLoading } = useQuery({
+  const { data: products, isLoading, isError, error, refetch, isFetching } = useQuery({
     queryKey: ["products", "all"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("products")
-        .select("*")
-        .order("sort_order", { ascending: true });
-      if (error) throw error;
-      return data as Product[];
-    },
+    queryFn: () => fetchProducts(),
+    retry: 3,
+    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 8000),
+    staleTime: 60_000,
   });
+
 
   const filtered = category
     ? products?.filter((p) => p.category === category)
