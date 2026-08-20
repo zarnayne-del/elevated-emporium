@@ -79,6 +79,21 @@ function HomePage() {
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
+          {isLoading && (
+            <p className="col-span-full label-mono text-forest/60">Loading inventory…</p>
+          )}
+          {isError && (
+            <div className="col-span-full border-2 border-forest p-6">
+              <p className="label-mono text-safety mb-2">Connection problem</p>
+              <p className="text-sm text-forest/70 mb-4">
+                {(error as Error)?.message ??
+                  "We couldn't reach the catalog. This can happen on a weak mobile data signal."}
+              </p>
+              <button onClick={() => refetch()} className="btn-forest" disabled={isFetching}>
+                {isFetching ? "Retrying…" : "Retry"}
+              </button>
+            </div>
+          )}
           {products?.map((p) => (
             <Link
               key={p.id}
