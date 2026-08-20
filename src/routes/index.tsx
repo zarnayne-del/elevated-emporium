@@ -20,7 +20,14 @@ export const Route = createFileRoute("/")({
 });
 
 function HomePage() {
-  const { data: products } = useQuery({
+  const {
+    data: products,
+    isLoading,
+    isError,
+    error,
+    refetch,
+    isFetching,
+  } = useQuery({
     queryKey: ["products", "featured"],
     queryFn: () => fetchProducts({ limit: 4 }),
     retry: 3,
