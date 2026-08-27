@@ -21,6 +21,7 @@ import { Route as OrderIdRouteImport } from './routes/order.$id'
 import { Route as AdminProductsRouteImport } from './routes/admin.products'
 import { Route as AdminGiveawayRouteImport } from './routes/admin.giveaway'
 import { Route as ApiPublicNotifyOrderRouteImport } from './routes/api/public/notify-order'
+import { Route as ApiPublicImgSplatRouteImport } from './routes/api/public/img/$'
 import { Route as ApiPublicHooksMonthlyGiveawayDrawRouteImport } from './routes/api/public/hooks/monthly-giveaway-draw'
 
 const TrackRoute = TrackRouteImport.update({
@@ -83,6 +84,11 @@ const ApiPublicNotifyOrderRoute = ApiPublicNotifyOrderRouteImport.update({
   path: '/api/public/notify-order',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicImgSplatRoute = ApiPublicImgSplatRouteImport.update({
+  id: '/api/public/img/$',
+  path: '/api/public/img/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicHooksMonthlyGiveawayDrawRoute =
   ApiPublicHooksMonthlyGiveawayDrawRouteImport.update({
     id: '/api/public/hooks/monthly-giveaway-draw',
@@ -104,6 +110,7 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AdminIndexRoute
   '/api/public/notify-order': typeof ApiPublicNotifyOrderRoute
   '/api/public/hooks/monthly-giveaway-draw': typeof ApiPublicHooksMonthlyGiveawayDrawRoute
+  '/api/public/img/$': typeof ApiPublicImgSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -118,6 +125,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/api/public/notify-order': typeof ApiPublicNotifyOrderRoute
   '/api/public/hooks/monthly-giveaway-draw': typeof ApiPublicHooksMonthlyGiveawayDrawRoute
+  '/api/public/img/$': typeof ApiPublicImgSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -134,6 +142,7 @@ export interface FileRoutesById {
   '/admin/': typeof AdminIndexRoute
   '/api/public/notify-order': typeof ApiPublicNotifyOrderRoute
   '/api/public/hooks/monthly-giveaway-draw': typeof ApiPublicHooksMonthlyGiveawayDrawRoute
+  '/api/public/img/$': typeof ApiPublicImgSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -151,6 +160,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/api/public/notify-order'
     | '/api/public/hooks/monthly-giveaway-draw'
+    | '/api/public/img/$'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -165,6 +175,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/api/public/notify-order'
     | '/api/public/hooks/monthly-giveaway-draw'
+    | '/api/public/img/$'
   id:
     | '__root__'
     | '/'
@@ -180,6 +191,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/api/public/notify-order'
     | '/api/public/hooks/monthly-giveaway-draw'
+    | '/api/public/img/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -193,6 +205,7 @@ export interface RootRouteChildren {
   ProductsSlugRoute: typeof ProductsSlugRoute
   ApiPublicNotifyOrderRoute: typeof ApiPublicNotifyOrderRoute
   ApiPublicHooksMonthlyGiveawayDrawRoute: typeof ApiPublicHooksMonthlyGiveawayDrawRoute
+  ApiPublicImgSplatRoute: typeof ApiPublicImgSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -281,6 +294,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicNotifyOrderRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/img/$': {
+      id: '/api/public/img/$'
+      path: '/api/public/img/$'
+      fullPath: '/api/public/img/$'
+      preLoaderRoute: typeof ApiPublicImgSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/monthly-giveaway-draw': {
       id: '/api/public/hooks/monthly-giveaway-draw'
       path: '/api/public/hooks/monthly-giveaway-draw'
@@ -317,6 +337,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicNotifyOrderRoute: ApiPublicNotifyOrderRoute,
   ApiPublicHooksMonthlyGiveawayDrawRoute:
     ApiPublicHooksMonthlyGiveawayDrawRoute,
+  ApiPublicImgSplatRoute: ApiPublicImgSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
