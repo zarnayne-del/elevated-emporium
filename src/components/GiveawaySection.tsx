@@ -202,7 +202,7 @@ export function GiveawaySection() {
             <div className="aspect-square border-2 border-forest bg-forest text-sand flex items-center justify-center mb-4 overflow-hidden">
               {prize?.image_url ? (
                 <img
-                  src={prize.image_url}
+                  src={proxiedImage(prize.image_url)}
                   alt={prize.title}
                   className="w-full h-full object-cover"
                 />
