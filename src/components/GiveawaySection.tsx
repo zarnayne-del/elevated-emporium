@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { proxiedImage } from "@/lib/products";
 
 type Entry = {
   id: string;
@@ -202,7 +203,7 @@ export function GiveawaySection() {
             <div className="aspect-square border-2 border-forest bg-forest text-sand flex items-center justify-center mb-4 overflow-hidden">
               {prize?.image_url ? (
                 <img
-                  src={prize.image_url}
+                  src={proxiedImage(prize.image_url)}
                   alt={prize.title}
                   className="w-full h-full object-cover"
                 />

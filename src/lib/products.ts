@@ -81,11 +81,23 @@ export function formatDelivery(mmk: number): string {
   return mmk === 0 ? "Free" : formatMmk(mmk);
 }
 
+/**
+ * Storage host is IPv4-only, which breaks images on IPv6-only / NAT64 mobile
+ * networks. Rewrite public storage URLs to the same-origin proxy route so the
+ * phone only ever talks to our (dual-stack) domain. Non-storage URLs and local
+ * bundled assets pass through unchanged.
+ */
+export const proxiedImage = (url: string): string => {
+  if (!url) return url;
+  const m = url.match(/\/storage\/v1\/object\/public\/(.+)$/);
+  return m ? `/api/public/img/${m[1]}` : url;
+};
+
 export const productImages_ = (p: Pick<Product, "slug" | "image_url" | "image_path" | "image_urls">): string[] => {
   const arr = (p.image_urls ?? []).filter(Boolean);
-  if (arr.length) return arr;
+  if (arr.length) return arr.map(proxiedImage);
   const single = p.image_url || p.image_path || productImages[p.slug];
-  return single ? [single] : [];
+  return single ? [proxiedImage(single)] : [];
 };
 
 export const productImage = (p: Pick<Product, "slug" | "image_url" | "image_path" | "image_urls">) =>
