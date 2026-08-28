@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { SiteLayout } from "@/components/SiteLayout";
-import { supabase } from "@/integrations/supabase/client";
+import { getOrderConfirmation } from "@/lib/checkout.functions";
 
 export const Route = createFileRoute("/order/$id")({
   component: OrderConfirmedPage,
@@ -10,6 +11,7 @@ export const Route = createFileRoute("/order/$id")({
 
 function OrderConfirmedPage() {
   const { id } = Route.useParams();
+  const loadConfirmation = useServerFn(getOrderConfirmation);
   const [phone, setPhone] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -17,12 +19,8 @@ function OrderConfirmedPage() {
     let cancelled = false;
     (async () => {
       try {
-        const { data } = await supabase
-          .from("orders")
-          .select("phone_number")
-          .eq("id", id)
-          .maybeSingle();
-        if (!cancelled) setPhone(data?.phone_number ?? null);
+        const data = await loadConfirmation({ data: { id } });
+        if (!cancelled) setPhone(data.phone_number);
       } catch (e) {
         console.error("Failed to load order phone:", e);
       } finally {
@@ -32,7 +30,7 @@ function OrderConfirmedPage() {
     return () => {
       cancelled = true;
     };
-  }, [id]);
+  }, [id, loadConfirmation]);
 
   return (
     <SiteLayout>
