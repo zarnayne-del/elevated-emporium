@@ -13,8 +13,7 @@ import {
   formatShipping,
   formatDelivery,
 } from "@/lib/products";
-import { placeOrder } from "@/lib/checkout.functions";
-import { supabase } from "@/integrations/supabase/client";
+import { placeOrder, uploadPaymentScreenshot } from "@/lib/checkout.functions";
 import { toast } from "sonner";
 import qrKpay from "@/assets/qr-kpay.jpg";
 import qrWavepay from "@/assets/qr-wavepay.jpg";
@@ -76,6 +75,7 @@ function CheckoutPage() {
   const { items, subtotal } = useCart();
   const navigate = useNavigate();
   const place = useServerFn(placeOrder);
+  const uploadScreenshot = useServerFn(uploadPaymentScreenshot);
   const [step, setStep] = useState<"shipping" | "payment">("shipping");
   const [shipping, setShipping] = useState<ShippingData | null>(null);
   const [file, setFile] = useState<File | null>(null);
@@ -141,21 +141,14 @@ function CheckoutPage() {
     }
     setSubmitting(true);
     try {
-      // Upload screenshot
-      const ext = file.name.split(".").pop()?.toLowerCase() || "png";
-      const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-      const { error: upErr } = await supabase.storage
-        .from("payment-screenshots")
-        .upload(path, file, { contentType: file.type, upsert: false });
-      if (upErr) throw upErr;
-      const { data: pub } = supabase.storage
-        .from("payment-screenshots")
-        .getPublicUrl(path);
+      const uploadData = new FormData();
+      uploadData.set("file", file);
+      const uploaded = await uploadScreenshot({ data: uploadData });
 
       const res = await place({
         data: {
           ...shipping,
-          payment_screenshot_url: pub.publicUrl,
+          payment_screenshot_url: uploaded.url,
           items: items.map((i) => ({
             product_id: i.product_id,
             quantity: i.quantity,
