@@ -41,7 +41,8 @@ export const placeOrder = createServerFn({ method: "POST" })
     }
 
     const priced = data.items.map((it) => {
-      const p = products!.find((p) => p.id === it.product_id)!;
+      const p = products?.find((product) => product.id === it.product_id);
+      if (!p) throw new Error("Product unavailable");
       return {
         product_id: p.id,
         product_slug: p.slug,
