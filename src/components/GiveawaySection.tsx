@@ -1,15 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
+import { getGiveawayOverview, getGiveawayTickets } from "@/lib/giveaway.functions";
 import { proxiedImage } from "@/lib/products";
 
 type Entry = {
   id: string;
-  order_id: string;
-  phone_number: string | null;
-  customer_name: string;
   month_key: string;
-  created_at: string;
 };
 type Winner = {
   id: string;
@@ -19,14 +16,8 @@ type Winner = {
   drawn_at: string;
 };
 
-function monthKey(d: Date) {
-  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
-}
 function endOfMonthUTC(now = new Date()) {
   return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1, 0, 0, 0));
-}
-function normalizePhone(p: string) {
-  return p.replace(/\D/g, "");
 }
 function ticketNumber(entryId: string) {
   // Short stable ticket number derived from the entry uuid
@@ -42,12 +33,13 @@ function firstName(name: string) {
 }
 
 function useCountdown(target: Date) {
-  const [now, setNow] = useState(() => Date.now());
+  const [now, setNow] = useState<number | null>(null);
   useEffect(() => {
+    setNow(Date.now());
     const id = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(id);
   }, []);
-  const ms = Math.max(0, target.getTime() - now);
+  const ms = now === null ? 0 : Math.max(0, target.getTime() - now);
   const s = Math.floor(ms / 1000);
   return {
     days: Math.floor(s / 86400),
@@ -68,22 +60,16 @@ type Prize = {
 };
 
 export function GiveawaySection() {
-  const currentMonth = monthKey(new Date());
+  const loadOverview = useServerFn(getGiveawayOverview);
+  const loadTickets = useServerFn(getGiveawayTickets);
 
-  const { data: prize } = useQuery({
-    queryKey: ["giveaway", "active-prize"],
-    queryFn: async () => {
-      const { data, error } = await (supabase as never as typeof supabase)
-        .from("giveaway_prizes" as never)
-        .select("*")
-        .eq("is_active", true)
-        .order("updated_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      if (error) throw error;
-      return (data ?? null) as unknown as Prize | null;
-    },
+  const { data: overview } = useQuery({
+    queryKey: ["giveaway", "overview"],
+    queryFn: () => loadOverview(),
+    refetchInterval: 60_000,
   });
+  const prize = (overview?.prize ?? null) as Prize | null;
+  const currentMonth = overview?.currentMonth ?? "";
 
   const drawDate = useMemo(() => {
     if (prize?.end_date) return new Date(prize.end_date);
@@ -96,71 +82,33 @@ export function GiveawaySection() {
   );
   const countdown = useCountdown(countdownTarget);
 
-  const { data: entries } = useQuery({
-    queryKey: ["giveaway", "entries", currentMonth],
-    queryFn: async () => {
-      const { data, error } = await (supabase as never as typeof supabase)
-        .from("giveaway_entries" as never)
-        .select("*")
-        .eq("month_key", currentMonth);
-      if (error) throw error;
-      return (data ?? []) as unknown as Entry[];
-    },
-    refetchInterval: 60_000,
-  });
-
-  const { data: winners } = useQuery({
-    queryKey: ["giveaway", "winners"],
-    queryFn: async () => {
-      const { data, error } = await (supabase as never as typeof supabase)
-        .from("giveaway_winners" as never)
-        .select("*")
-        .order("drawn_at", { ascending: false });
-      if (error) throw error;
-      return (data ?? []) as unknown as Winner[];
-    },
-  });
-
-  const totalTickets = entries?.length ?? 0;
-  const participants = useMemo(() => {
-    const s = new Set<string>();
-    for (const e of entries ?? []) s.add(e.phone_number ?? e.id);
-    return s.size;
-  }, [entries]);
+  const winners = (overview?.winners ?? []) as Winner[];
+  const totalTickets = overview?.totalTickets ?? 0;
+  const participants = overview?.participants ?? 0;
 
   const previousWinner = winners?.find((w) => w.month_key !== currentMonth) ?? null;
   const [showAllWinners, setShowAllWinners] = useState(false);
 
   // Personal tickets lookup (no auth in app — key by phone number)
-  const [phone, setPhone] = useState<string>(() => {
-    if (typeof window === "undefined") return "";
-    return localStorage.getItem("kc.giveaway.phone") ?? "";
-  });
-  const [phoneInput, setPhoneInput] = useState(phone);
+  const [phone, setPhone] = useState("");
+  const [phoneInput, setPhoneInput] = useState("");
   const [showMine, setShowMine] = useState(false);
 
-  const myEntries = useMemo(() => {
-    if (!phone) return [];
-    const norm = normalizePhone(phone);
-    return (entries ?? []).filter(
-      (e) => e.phone_number && normalizePhone(e.phone_number) === norm,
-    );
-  }, [entries, phone]);
+  useEffect(() => {
+    const saved = localStorage.getItem("kc.giveaway.phone") ?? "";
+    setPhone(saved);
+    setPhoneInput(saved);
+  }, []);
 
   const { data: myAllEntries } = useQuery({
     queryKey: ["giveaway", "mine-all", phone],
     enabled: !!phone,
-    queryFn: async () => {
-      const norm = normalizePhone(phone);
-      const { data, error } = await (supabase as never as typeof supabase)
-        .from("giveaway_entries" as never)
-        .select("*");
-      if (error) throw error;
-      return ((data ?? []) as unknown as Entry[]).filter(
-        (e) => e.phone_number && normalizePhone(e.phone_number) === norm,
-      );
-    },
+    queryFn: async () => (await loadTickets({ data: { phone_number: phone } })).tickets,
   });
+  const myEntries = useMemo(
+    () => ((myAllEntries ?? []) as Entry[]).filter((entry) => entry.month_key === currentMonth),
+    [currentMonth, myAllEntries],
+  );
 
   const savePhone = (p: string) => {
     const trimmed = p.trim();
@@ -252,7 +200,7 @@ export function GiveawaySection() {
             <div className="border-2 border-forest p-4">
               <p className="label-mono text-forest/60 mb-1">Next Draw</p>
               <p className="font-display text-xl uppercase tracking-tight">
-                {drawDate.toLocaleDateString(undefined, {
+                {drawDate.toLocaleDateString("en-US", {
                   weekday: "short",
                   month: "short",
                   day: "numeric",

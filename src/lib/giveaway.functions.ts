@@ -76,9 +76,19 @@ export const getGiveawayOverview = createServerFn({ method: "GET" })
       phone_number: winner.phone_number ? winner.phone_number.replace(/\D/g, "").slice(-4) : null,
     }));
 
+    const prize = prizeResult.data as unknown as {
+      id: string;
+      title: string;
+      description: string | null;
+      prize_value: string;
+      image_url: string | null;
+      end_date: string | null;
+      is_active: boolean;
+    } | null;
+
     return {
       currentMonth,
-      prize: (prizeResult.data ?? null) as unknown,
+      prize,
       totalTickets: entriesResult.count ?? phones.length,
       participants,
       winners,
