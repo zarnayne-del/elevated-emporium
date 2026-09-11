@@ -39,13 +39,29 @@ function receiptPath(stored: string | null): string | null {
 export const getAdminStatus = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data } = await (context as unknown as AuthedContext).supabase
+    const ctx = context as unknown as AuthedContext;
+    const { data } = await ctx.supabase
       .from("user_roles")
       .select("role")
-      .eq("user_id", (context as unknown as AuthedContext).userId)
+      .eq("user_id", ctx.userId)
       .eq("role", "admin")
       .maybeSingle();
-    return { isAdmin: !!data };
+    if (data) return { isAdmin: true };
+
+    // One-time bootstrap: if no admin exists yet, the first signed-in account
+    // claims ownership of the store. Afterwards this branch can never run.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { count } = await supabaseAdmin
+      .from("user_roles")
+      .select("id", { count: "exact", head: true })
+      .eq("role", "admin");
+    if ((count ?? 0) === 0) {
+      const { error } = await supabaseAdmin
+        .from("user_roles")
+        .insert({ user_id: ctx.userId, role: "admin" });
+      if (!error) return { isAdmin: true };
+    }
+    return { isAdmin: false };
   });
 
 /* ---------------------------------- orders --------------------------------- */
