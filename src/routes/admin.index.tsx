@@ -19,7 +19,8 @@ function AdminOrdersPage() {
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin", "orders"],
-    queryFn: () => listOrders(),
+    queryFn: () => safeCall(() => listOrders()),
+    retry: false,
   });
   const orders = data?.orders;
 
