@@ -26,9 +26,11 @@ function AdminOrdersPage() {
 
   const updateStatus = async (id: string, status: string) => {
     try {
-      await updateOrderStatus({
-        data: { id, status: status as (typeof STATUS_OPTIONS)[number] },
-      });
+      await safeCall(() =>
+        updateOrderStatus({
+          data: { id, status: status as (typeof STATUS_OPTIONS)[number] },
+        }),
+      );
       toast.success("Status updated");
       qc.invalidateQueries({ queryKey: ["admin", "orders"] });
     } catch (e) {
