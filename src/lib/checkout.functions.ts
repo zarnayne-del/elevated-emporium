@@ -9,7 +9,7 @@ export const placeOrder = createServerFn({ method: "POST" })
       shipping_name: z.string().trim().min(1).max(120),
       shipping_address: z.string().trim().min(1).max(255),
       shipping_city: z.string().trim().min(1).max(100),
-      payment_screenshot_url: z.string().trim().url().max(500),
+      payment_screenshot_url: z.string().trim().min(1).max(500),
       items: z.array(z.object({
         product_id: z.string().uuid(),
         quantity: z.number().int().min(1).max(50),
@@ -172,10 +172,9 @@ export const uploadPaymentScreenshot = createServerFn({ method: "POST" })
       throw new Error("Could not upload payment screenshot");
     }
 
-    const { data: publicData } = supabaseAdmin.storage
-      .from("payment-screenshots")
-      .getPublicUrl(path);
-    return { url: publicData.publicUrl };
+    // The bucket is private: only the storage path is returned and stored.
+    // Staff view receipts through short-lived signed links generated server-side.
+    return { path };
   });
 
 export const getOrderConfirmation = createServerFn({ method: "POST" })
