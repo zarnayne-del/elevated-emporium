@@ -34,7 +34,8 @@ function AdminProductsPage() {
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin", "products"],
-    queryFn: () => listProducts(),
+    queryFn: () => safeCall(() => listProducts()),
+    retry: false,
   });
   const products = (data?.products ?? []) as unknown as Product[];
 
