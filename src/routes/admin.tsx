@@ -18,7 +18,17 @@ function AdminLayout() {
   const { data, isLoading, isError } = useQuery({
     queryKey: ["admin", "access"],
     retry: false,
-    queryFn: () => checkAdmin(),
+    queryFn: async () => {
+      // No session at all → don't call the protected function (it would
+      // reject with a raw 401 Response and blank the page).
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData.session) return { isAdmin: false };
+      try {
+        return await checkAdmin();
+      } catch {
+        return { isAdmin: false };
+      }
+    },
   });
 
   const tabs = [
