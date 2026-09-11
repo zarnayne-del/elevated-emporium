@@ -10,7 +10,9 @@ import { createFileRoute } from "@tanstack/react-router";
  *
  * URL shape: /api/public/img/<bucket>/<object path>
  */
-const ALLOWED_BUCKETS = new Set(["product-images", "payment-screenshots", "giveaway-prizes"]);
+// Public catalog imagery only. Payment receipts live in a private bucket and
+// are never served through this unauthenticated proxy.
+const ALLOWED_BUCKETS = new Set(["product-images", "giveaway-prizes"]);
 
 export const Route = createFileRoute("/api/public/img/$")({
   server: {
