@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { formatPrice } from "@/lib/products";
 import { adminListOrders, adminUpdateOrderStatus } from "@/lib/admin.functions";
+import { safeCall } from "@/lib/server-call";
 import { toast } from "sonner";
 
 const STATUS_OPTIONS = ["pending", "payment_verified", "shipped", "delivered"] as const;
