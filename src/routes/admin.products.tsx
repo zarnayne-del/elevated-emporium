@@ -1,16 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
 import { formatPrice, type Product, productImage, productImages_, USD_TO_MMK } from "@/lib/products";
+import {
+  adminCreateProduct,
+  adminDeleteProduct,
+  adminListProducts,
+  adminUpdateProduct,
+  adminUploadImage,
+} from "@/lib/admin.functions";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/products")({
   component: AdminProductsPage,
 });
-
-const slugify = (s: string) =>
-  s.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
 function AdminProductsPage() {
   const qc = useQueryClient();
@@ -21,17 +25,28 @@ function AdminProductsPage() {
   const [editExistingUrls, setEditExistingUrls] = useState<string[]>([]);
   const [editSubmitting, setEditSubmitting] = useState(false);
 
-  const { data: products, isLoading } = useQuery({
+  const listProducts = useServerFn(adminListProducts);
+  const createProduct = useServerFn(adminCreateProduct);
+  const updateProduct = useServerFn(adminUpdateProduct);
+  const deleteProduct = useServerFn(adminDeleteProduct);
+  const uploadImage = useServerFn(adminUploadImage);
+
+  const { data, isLoading } = useQuery({
     queryKey: ["admin", "products"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("products")
-        .select("*")
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return (data ?? []) as Product[];
-    },
+    queryFn: () => listProducts(),
   });
+  const products = (data?.products ?? []) as unknown as Product[];
+
+  const uploadAll = async (list: File[]) => {
+    const urls: string[] = [];
+    for (const f of list) {
+      const fd = new FormData();
+      fd.set("file", f);
+      const res = await uploadImage({ data: fd });
+      urls.push(res.url);
+    }
+    return urls;
+  };
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -47,33 +62,16 @@ function AdminProductsPage() {
     }
     setSubmitting(true);
     try {
-      const image_urls: string[] = [];
-      for (const f of files) {
-        const ext = f.name.split(".").pop()?.toLowerCase() || "png";
-        const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-        const { error: upErr } = await supabase.storage
-          .from("product-images")
-          .upload(path, f, { contentType: f.type });
-        if (upErr) throw upErr;
-        const { data: pub } = supabase.storage.from("product-images").getPublicUrl(path);
-        image_urls.push(pub.publicUrl);
-      }
-      const slug = `${slugify(name)}-${Math.random().toString(36).slice(2, 6)}`;
-      const price_cents = Math.round((priceMmk / USD_TO_MMK) * 100);
-      const { error } = await supabase.from("products").insert({
-        slug,
-        name,
-        category,
-        description,
-        subtitle: category,
-        price_cents,
-        color: "sand",
-        image_url: image_urls[0] ?? "",
-        image_urls,
-        in_stock: true,
-        sort_order: 100,
+      const image_urls = await uploadAll(files);
+      await createProduct({
+        data: {
+          name,
+          description,
+          category,
+          price_cents: Math.round((priceMmk / USD_TO_MMK) * 100),
+          image_urls,
+        },
       });
-      if (error) throw error;
       toast.success("Product created");
       form.reset();
       setFiles([]);
@@ -108,33 +106,18 @@ function AdminProductsPage() {
     }
     setEditSubmitting(true);
     try {
-      const uploaded: string[] = [];
-      for (const f of editFiles) {
-        const ext = f.name.split(".").pop()?.toLowerCase() || "png";
-        const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-        const { error: upErr } = await supabase.storage
-          .from("product-images")
-          .upload(path, f, { contentType: f.type });
-        if (upErr) throw upErr;
-        const { data: pub } = supabase.storage.from("product-images").getPublicUrl(path);
-        uploaded.push(pub.publicUrl);
-      }
-      const image_urls = [...editExistingUrls, ...uploaded];
-      const price_cents = Math.round((priceMmk / USD_TO_MMK) * 100);
-      const { error } = await supabase
-        .from("products")
-        .update({
+      const uploaded = await uploadAll(editFiles);
+      await updateProduct({
+        data: {
+          id: editing.id,
           name,
           description,
           category,
-          subtitle: category,
-          price_cents,
           in_stock,
-          image_url: image_urls[0] ?? "",
-          image_urls,
-        })
-        .eq("id", editing.id);
-      if (error) throw error;
+          price_cents: Math.round((priceMmk / USD_TO_MMK) * 100),
+          image_urls: [...editExistingUrls, ...uploaded],
+        },
+      });
       toast.success("Product updated");
       setEditing(null);
       qc.invalidateQueries({ queryKey: ["admin", "products"] });
@@ -149,14 +132,14 @@ function AdminProductsPage() {
 
   const onDelete = async (id: string) => {
     if (!confirm("Delete this product?")) return;
-    const { error } = await supabase.from("products").delete().eq("id", id);
-    if (error) {
-      toast.error(error.message);
-      return;
+    try {
+      await deleteProduct({ data: { id } });
+      toast.success("Deleted");
+      qc.invalidateQueries({ queryKey: ["admin", "products"] });
+      qc.invalidateQueries({ queryKey: ["products"] });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Delete failed");
     }
-    toast.success("Deleted");
-    qc.invalidateQueries({ queryKey: ["admin", "products"] });
-    qc.invalidateQueries({ queryKey: ["products"] });
   };
 
   return (
