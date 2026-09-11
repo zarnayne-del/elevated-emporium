@@ -219,6 +219,35 @@ export const adminUploadImage = createServerFn({ method: "POST" })
 
 /* --------------------------------- giveaway -------------------------------- */
 
+export type AdminEntry = {
+  id: string;
+  order_id: string;
+  phone_number: string | null;
+  customer_name: string;
+  month_key: string;
+  created_at: string;
+};
+export type AdminWinner = {
+  id: string;
+  month_key: string;
+  customer_name: string;
+  phone_number: string | null;
+  order_id: string | null;
+  drawn_at: string;
+  drawn_manually: boolean;
+};
+export type AdminPrize = {
+  id: string;
+  title: string;
+  description: string | null;
+  prize_value: string;
+  image_url: string | null;
+  end_date: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
 export const adminGiveawayData = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
