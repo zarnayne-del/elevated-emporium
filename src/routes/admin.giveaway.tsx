@@ -56,7 +56,8 @@ function useGiveawayData() {
   const load = useServerFn(adminGiveawayData);
   return useQuery({
     queryKey: ["admin", "giveaway"],
-    queryFn: () => load(),
+    queryFn: () => safeCall(() => load()),
+    retry: false,
   });
 }
 
