@@ -2,8 +2,14 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { drawGiveawayWinner } from "@/lib/giveaway.functions";
+import {
+  adminActivatePrize,
+  adminDeletePrize,
+  adminGiveawayData,
+  adminSavePrize,
+  adminUploadImage,
+} from "@/lib/admin.functions";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/giveaway")({
@@ -46,37 +52,25 @@ function currentMonthKey() {
   return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
 }
 
+function useGiveawayData() {
+  const load = useServerFn(adminGiveawayData);
+  return useQuery({
+    queryKey: ["admin", "giveaway"],
+    queryFn: () => load(),
+  });
+}
+
 function AdminGiveawayPage() {
   const qc = useQueryClient();
   const draw = useServerFn(drawGiveawayWinner);
   const [drawing, setDrawing] = useState(false);
   const month = currentMonthKey();
 
-  const { data: entries } = useQuery({
-    queryKey: ["admin", "giveaway_entries"],
-    queryFn: async () => {
-      const { data, error } = await (supabase as never as typeof supabase)
-        .from("giveaway_entries" as never)
-        .select("*")
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return (data ?? []) as unknown as Entry[];
-    },
-  });
+  const { data } = useGiveawayData();
+  const entries = (data?.entries ?? []) as Entry[];
+  const winners = (data?.winners ?? []) as Winner[];
 
-  const { data: winners } = useQuery({
-    queryKey: ["admin", "giveaway_winners"],
-    queryFn: async () => {
-      const { data, error } = await (supabase as never as typeof supabase)
-        .from("giveaway_winners" as never)
-        .select("*")
-        .order("drawn_at", { ascending: false });
-      if (error) throw error;
-      return (data ?? []) as unknown as Winner[];
-    },
-  });
-
-  const currentMonthEntries = (entries ?? []).filter((e) => e.month_key === month);
+  const currentMonthEntries = entries.filter((e) => e.month_key === month);
 
   const onDraw = async () => {
     setDrawing(true);
@@ -89,7 +83,7 @@ function AdminGiveawayPage() {
       } else {
         toast.success("Winner drawn!");
       }
-      qc.invalidateQueries({ queryKey: ["admin", "giveaway_winners"] });
+      qc.invalidateQueries({ queryKey: ["admin", "giveaway"] });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Draw failed");
     } finally {
