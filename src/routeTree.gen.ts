@@ -13,6 +13,7 @@ import { Route as TrackRouteImport } from './routes/track'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as CartRouteImport } from './routes/cart'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
@@ -20,7 +21,6 @@ import { Route as ProductsSlugRouteImport } from './routes/products.$slug'
 import { Route as OrderIdRouteImport } from './routes/order.$id'
 import { Route as AdminProductsRouteImport } from './routes/admin.products'
 import { Route as AdminGiveawayRouteImport } from './routes/admin.giveaway'
-import { Route as ApiPublicNotifyOrderRouteImport } from './routes/api/public/notify-order'
 import { Route as ApiPublicImgSplatRouteImport } from './routes/api/public/img/$'
 import { Route as ApiPublicHooksMonthlyGiveawayDrawRouteImport } from './routes/api/public/hooks/monthly-giveaway-draw'
 
@@ -42,6 +42,11 @@ const CheckoutRoute = CheckoutRouteImport.update({
 const CartRoute = CartRouteImport.update({
   id: '/cart',
   path: '/cart',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -79,11 +84,6 @@ const AdminGiveawayRoute = AdminGiveawayRouteImport.update({
   path: '/giveaway',
   getParentRoute: () => AdminRoute,
 } as any)
-const ApiPublicNotifyOrderRoute = ApiPublicNotifyOrderRouteImport.update({
-  id: '/api/public/notify-order',
-  path: '/api/public/notify-order',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiPublicImgSplatRoute = ApiPublicImgSplatRouteImport.update({
   id: '/api/public/img/$',
   path: '/api/public/img/$',
@@ -99,6 +99,7 @@ const ApiPublicHooksMonthlyGiveawayDrawRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
   '/shop': typeof ShopRoute
@@ -108,12 +109,12 @@ export interface FileRoutesByFullPath {
   '/order/$id': typeof OrderIdRoute
   '/products/$slug': typeof ProductsSlugRoute
   '/admin/': typeof AdminIndexRoute
-  '/api/public/notify-order': typeof ApiPublicNotifyOrderRoute
   '/api/public/hooks/monthly-giveaway-draw': typeof ApiPublicHooksMonthlyGiveawayDrawRoute
   '/api/public/img/$': typeof ApiPublicImgSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
   '/shop': typeof ShopRoute
@@ -123,7 +124,6 @@ export interface FileRoutesByTo {
   '/order/$id': typeof OrderIdRoute
   '/products/$slug': typeof ProductsSlugRoute
   '/admin': typeof AdminIndexRoute
-  '/api/public/notify-order': typeof ApiPublicNotifyOrderRoute
   '/api/public/hooks/monthly-giveaway-draw': typeof ApiPublicHooksMonthlyGiveawayDrawRoute
   '/api/public/img/$': typeof ApiPublicImgSplatRoute
 }
@@ -131,6 +131,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
   '/shop': typeof ShopRoute
@@ -140,7 +141,6 @@ export interface FileRoutesById {
   '/order/$id': typeof OrderIdRoute
   '/products/$slug': typeof ProductsSlugRoute
   '/admin/': typeof AdminIndexRoute
-  '/api/public/notify-order': typeof ApiPublicNotifyOrderRoute
   '/api/public/hooks/monthly-giveaway-draw': typeof ApiPublicHooksMonthlyGiveawayDrawRoute
   '/api/public/img/$': typeof ApiPublicImgSplatRoute
 }
@@ -149,6 +149,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/auth'
     | '/cart'
     | '/checkout'
     | '/shop'
@@ -158,12 +159,12 @@ export interface FileRouteTypes {
     | '/order/$id'
     | '/products/$slug'
     | '/admin/'
-    | '/api/public/notify-order'
     | '/api/public/hooks/monthly-giveaway-draw'
     | '/api/public/img/$'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/auth'
     | '/cart'
     | '/checkout'
     | '/shop'
@@ -173,13 +174,13 @@ export interface FileRouteTypes {
     | '/order/$id'
     | '/products/$slug'
     | '/admin'
-    | '/api/public/notify-order'
     | '/api/public/hooks/monthly-giveaway-draw'
     | '/api/public/img/$'
   id:
     | '__root__'
     | '/'
     | '/admin'
+    | '/auth'
     | '/cart'
     | '/checkout'
     | '/shop'
@@ -189,7 +190,6 @@ export interface FileRouteTypes {
     | '/order/$id'
     | '/products/$slug'
     | '/admin/'
-    | '/api/public/notify-order'
     | '/api/public/hooks/monthly-giveaway-draw'
     | '/api/public/img/$'
   fileRoutesById: FileRoutesById
@@ -197,13 +197,13 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
+  AuthRoute: typeof AuthRoute
   CartRoute: typeof CartRoute
   CheckoutRoute: typeof CheckoutRoute
   ShopRoute: typeof ShopRoute
   TrackRoute: typeof TrackRoute
   OrderIdRoute: typeof OrderIdRoute
   ProductsSlugRoute: typeof ProductsSlugRoute
-  ApiPublicNotifyOrderRoute: typeof ApiPublicNotifyOrderRoute
   ApiPublicHooksMonthlyGiveawayDrawRoute: typeof ApiPublicHooksMonthlyGiveawayDrawRoute
   ApiPublicImgSplatRoute: typeof ApiPublicImgSplatRoute
 }
@@ -236,6 +236,13 @@ declare module '@tanstack/react-router' {
       path: '/cart'
       fullPath: '/cart'
       preLoaderRoute: typeof CartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -287,13 +294,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminGiveawayRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/api/public/notify-order': {
-      id: '/api/public/notify-order'
-      path: '/api/public/notify-order'
-      fullPath: '/api/public/notify-order'
-      preLoaderRoute: typeof ApiPublicNotifyOrderRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/public/img/$': {
       id: '/api/public/img/$'
       path: '/api/public/img/$'
@@ -328,13 +328,13 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
+  AuthRoute: AuthRoute,
   CartRoute: CartRoute,
   CheckoutRoute: CheckoutRoute,
   ShopRoute: ShopRoute,
   TrackRoute: TrackRoute,
   OrderIdRoute: OrderIdRoute,
   ProductsSlugRoute: ProductsSlugRoute,
-  ApiPublicNotifyOrderRoute: ApiPublicNotifyOrderRoute,
   ApiPublicHooksMonthlyGiveawayDrawRoute:
     ApiPublicHooksMonthlyGiveawayDrawRoute,
   ApiPublicImgSplatRoute: ApiPublicImgSplatRoute,

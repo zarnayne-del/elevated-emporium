@@ -1,54 +1,38 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
 import { formatPrice } from "@/lib/products";
+import { adminListOrders, adminUpdateOrderStatus } from "@/lib/admin.functions";
 import { toast } from "sonner";
 
 const STATUS_OPTIONS = ["pending", "payment_verified", "shipped", "delivered"] as const;
-
 
 export const Route = createFileRoute("/admin/")({
   component: AdminOrdersPage,
 });
 
-type Order = {
-  id: string;
-  order_number: string;
-  email: string | null;
-  phone_number: string | null;
-  shipping_name: string;
-  shipping_city: string;
-  shipping_country: string;
-  total_cents: number;
-  status: string;
-  payment_screenshot_url: string | null;
-  created_at: string;
-};
-
 function AdminOrdersPage() {
   const qc = useQueryClient();
-  const { data: orders, isLoading } = useQuery({
+  const listOrders = useServerFn(adminListOrders);
+  const updateOrderStatus = useServerFn(adminUpdateOrderStatus);
+
+  const { data, isLoading } = useQuery({
     queryKey: ["admin", "orders"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("orders")
-        .select("id, order_number, email, phone_number, shipping_name, shipping_city, shipping_country, total_cents, status, payment_screenshot_url, created_at")
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return (data ?? []) as Order[];
-    },
+    queryFn: () => listOrders(),
   });
+  const orders = data?.orders;
 
   const updateStatus = async (id: string, status: string) => {
-    const { error } = await supabase.from("orders").update({ status }).eq("id", id);
-    if (error) {
-      toast.error(error.message);
-      return;
+    try {
+      await updateOrderStatus({
+        data: { id, status: status as (typeof STATUS_OPTIONS)[number] },
+      });
+      toast.success("Status updated");
+      qc.invalidateQueries({ queryKey: ["admin", "orders"] });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Update failed");
     }
-    toast.success("Status updated");
-    qc.invalidateQueries({ queryKey: ["admin", "orders"] });
   };
-
 
   return (
     <section>
@@ -104,9 +88,9 @@ function AdminOrdersPage() {
                     </select>
                   </td>
                   <td className="px-4 py-3">
-                    {o.payment_screenshot_url ? (
+                    {o.receipt_url ? (
                       <a
-                        href={o.payment_screenshot_url}
+                        href={o.receipt_url}
                         target="_blank"
                         rel="noreferrer"
                         className="label-mono underline underline-offset-4 hover:text-safety"

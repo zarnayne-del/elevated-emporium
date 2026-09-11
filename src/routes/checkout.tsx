@@ -148,7 +148,7 @@ function CheckoutPage() {
       const res = await place({
         data: {
           ...shipping,
-          payment_screenshot_url: uploaded.url,
+          payment_screenshot_url: uploaded.path,
           items: items.map((i) => ({
             product_id: i.product_id,
             quantity: i.quantity,

@@ -2,8 +2,14 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { drawGiveawayWinner } from "@/lib/giveaway.functions";
+import {
+  adminActivatePrize,
+  adminDeletePrize,
+  adminGiveawayData,
+  adminSavePrize,
+  adminUploadImage,
+} from "@/lib/admin.functions";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/giveaway")({
@@ -46,37 +52,25 @@ function currentMonthKey() {
   return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
 }
 
+function useGiveawayData() {
+  const load = useServerFn(adminGiveawayData);
+  return useQuery({
+    queryKey: ["admin", "giveaway"],
+    queryFn: () => load(),
+  });
+}
+
 function AdminGiveawayPage() {
   const qc = useQueryClient();
   const draw = useServerFn(drawGiveawayWinner);
   const [drawing, setDrawing] = useState(false);
   const month = currentMonthKey();
 
-  const { data: entries } = useQuery({
-    queryKey: ["admin", "giveaway_entries"],
-    queryFn: async () => {
-      const { data, error } = await (supabase as never as typeof supabase)
-        .from("giveaway_entries" as never)
-        .select("*")
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return (data ?? []) as unknown as Entry[];
-    },
-  });
+  const { data } = useGiveawayData();
+  const entries = (data?.entries ?? []) as Entry[];
+  const winners = (data?.winners ?? []) as Winner[];
 
-  const { data: winners } = useQuery({
-    queryKey: ["admin", "giveaway_winners"],
-    queryFn: async () => {
-      const { data, error } = await (supabase as never as typeof supabase)
-        .from("giveaway_winners" as never)
-        .select("*")
-        .order("drawn_at", { ascending: false });
-      if (error) throw error;
-      return (data ?? []) as unknown as Winner[];
-    },
-  });
-
-  const currentMonthEntries = (entries ?? []).filter((e) => e.month_key === month);
+  const currentMonthEntries = entries.filter((e) => e.month_key === month);
 
   const onDraw = async () => {
     setDrawing(true);
@@ -89,7 +83,7 @@ function AdminGiveawayPage() {
       } else {
         toast.success("Winner drawn!");
       }
-      qc.invalidateQueries({ queryKey: ["admin", "giveaway_winners"] });
+      qc.invalidateQueries({ queryKey: ["admin", "giveaway"] });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Draw failed");
     } finally {
@@ -243,17 +237,19 @@ function PrizeManager() {
     is_active: true,
   });
 
-  const { data: prizes } = useQuery({
-    queryKey: ["admin", "giveaway_prizes"],
-    queryFn: async () => {
-      const { data, error } = await (supabase as never as typeof supabase)
-        .from("giveaway_prizes" as never)
-        .select("*")
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return (data ?? []) as unknown as Prize[];
-    },
-  });
+  const savePrize = useServerFn(adminSavePrize);
+  const activatePrize = useServerFn(adminActivatePrize);
+  const deletePrize = useServerFn(adminDeletePrize);
+  const uploadImageFn = useServerFn(adminUploadImage);
+
+  const { data: giveaway } = useGiveawayData();
+  const prizes = (giveaway?.prizes ?? []) as Prize[];
+
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: ["admin", "giveaway"] });
+    qc.invalidateQueries({ queryKey: ["giveaway", "active-prize"] });
+    qc.invalidateQueries({ queryKey: ["giveaway", "overview"] });
+  };
 
   useEffect(() => {
     if (editing) {
@@ -277,12 +273,11 @@ function PrizeManager() {
 
   const uploadImage = async (): Promise<string | null> => {
     if (!file) return form.image_url || null;
-    const ext = file.name.split(".").pop()?.toLowerCase() || "png";
-    const path = `prizes/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-    const { error } = await supabase.storage.from("product-images").upload(path, file, { contentType: file.type });
-    if (error) throw error;
-    const { data } = supabase.storage.from("product-images").getPublicUrl(path);
-    return data.publicUrl;
+    const fd = new FormData();
+    fd.set("file", file);
+    fd.set("folder", "prizes");
+    const res = await uploadImageFn({ data: fd });
+    return res.url;
   };
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -291,31 +286,20 @@ function PrizeManager() {
     setSubmitting(true);
     try {
       const image_url = await uploadImage();
-      const payload = {
-        title: form.title.trim(),
-        description: form.description.trim() || null,
-        prize_value: form.prize_value.trim(),
-        image_url: image_url || null,
-        end_date: form.end_date ? new Date(form.end_date).toISOString() : null,
-        is_active: form.is_active,
-      };
-      if (editing) {
-        const { error } = await (supabase as never as typeof supabase)
-          .from("giveaway_prizes" as never)
-          .update(payload as never)
-          .eq("id", editing.id);
-        if (error) throw error;
-        toast.success("Prize updated");
-      } else {
-        const { error } = await (supabase as never as typeof supabase)
-          .from("giveaway_prizes" as never)
-          .insert(payload as never);
-        if (error) throw error;
-        toast.success("Prize created");
-      }
+      await savePrize({
+        data: {
+          id: editing?.id,
+          title: form.title.trim(),
+          description: form.description.trim() || null,
+          prize_value: form.prize_value.trim(),
+          image_url: image_url || null,
+          end_date: form.end_date ? new Date(form.end_date).toISOString() : null,
+          is_active: form.is_active,
+        },
+      });
+      toast.success(editing ? "Prize updated" : "Prize created");
       reset();
-      qc.invalidateQueries({ queryKey: ["admin", "giveaway_prizes"] });
-      qc.invalidateQueries({ queryKey: ["giveaway", "active-prize"] });
+      invalidate();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Save failed");
     } finally {
@@ -324,26 +308,24 @@ function PrizeManager() {
   };
 
   const activate = async (p: Prize) => {
-    const { error } = await (supabase as never as typeof supabase)
-      .from("giveaway_prizes" as never)
-      .update({ is_active: true } as never)
-      .eq("id", p.id);
-    if (error) return toast.error(error.message);
-    toast.success("Prize activated");
-    qc.invalidateQueries({ queryKey: ["admin", "giveaway_prizes"] });
-    qc.invalidateQueries({ queryKey: ["giveaway", "active-prize"] });
+    try {
+      await activatePrize({ data: { id: p.id } });
+      toast.success("Prize activated");
+      invalidate();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Activate failed");
+    }
   };
 
   const remove = async (p: Prize) => {
     if (!confirm(`Delete prize "${p.title}"?`)) return;
-    const { error } = await (supabase as never as typeof supabase)
-      .from("giveaway_prizes" as never)
-      .delete()
-      .eq("id", p.id);
-    if (error) return toast.error(error.message);
-    toast.success("Prize deleted");
-    qc.invalidateQueries({ queryKey: ["admin", "giveaway_prizes"] });
-    qc.invalidateQueries({ queryKey: ["giveaway", "active-prize"] });
+    try {
+      await deletePrize({ data: { id: p.id } });
+      toast.success("Prize deleted");
+      invalidate();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Delete failed");
+    }
   };
 
   return (
