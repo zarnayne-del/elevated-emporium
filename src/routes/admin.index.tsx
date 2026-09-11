@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { formatPrice } from "@/lib/products";
 import { adminListOrders, adminUpdateOrderStatus } from "@/lib/admin.functions";
+import { safeCall } from "@/lib/server-call";
 import { toast } from "sonner";
 
 const STATUS_OPTIONS = ["pending", "payment_verified", "shipped", "delivered"] as const;
@@ -18,15 +19,18 @@ function AdminOrdersPage() {
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin", "orders"],
-    queryFn: () => listOrders(),
+    queryFn: () => safeCall(() => listOrders()),
+    retry: false,
   });
   const orders = data?.orders;
 
   const updateStatus = async (id: string, status: string) => {
     try {
-      await updateOrderStatus({
-        data: { id, status: status as (typeof STATUS_OPTIONS)[number] },
-      });
+      await safeCall(() =>
+        updateOrderStatus({
+          data: { id, status: status as (typeof STATUS_OPTIONS)[number] },
+        }),
+      );
       toast.success("Status updated");
       qc.invalidateQueries({ queryKey: ["admin", "orders"] });
     } catch (e) {

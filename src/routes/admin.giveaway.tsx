@@ -10,6 +10,7 @@ import {
   adminSavePrize,
   adminUploadImage,
 } from "@/lib/admin.functions";
+import { safeCall } from "@/lib/server-call";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/giveaway")({
@@ -56,7 +57,8 @@ function useGiveawayData() {
   const load = useServerFn(adminGiveawayData);
   return useQuery({
     queryKey: ["admin", "giveaway"],
-    queryFn: () => load(),
+    queryFn: () => safeCall(() => load()),
+    retry: false,
   });
 }
 

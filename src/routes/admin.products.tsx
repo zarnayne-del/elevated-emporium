@@ -10,6 +10,7 @@ import {
   adminUpdateProduct,
   adminUploadImage,
 } from "@/lib/admin.functions";
+import { safeCall } from "@/lib/server-call";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/products")({
@@ -33,7 +34,8 @@ function AdminProductsPage() {
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin", "products"],
-    queryFn: () => listProducts(),
+    queryFn: () => safeCall(() => listProducts()),
+    retry: false,
   });
   const products = (data?.products ?? []) as unknown as Product[];
 
