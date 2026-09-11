@@ -10,6 +10,7 @@ import {
   adminUpdateProduct,
   adminUploadImage,
 } from "@/lib/admin.functions";
+import { safeCall } from "@/lib/server-call";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/products")({
