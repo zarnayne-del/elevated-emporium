@@ -232,9 +232,9 @@ export const adminGiveawayData = createServerFn({ method: "GET" })
       throw new Error("Could not load giveaway data");
     }
     return {
-      entries: (entries.data ?? []) as unknown[],
-      winners: (winners.data ?? []) as unknown[],
-      prizes: (prizes.data ?? []) as unknown[],
+      entries: (entries.data ?? []) as unknown as AdminEntry[],
+      winners: (winners.data ?? []) as unknown as AdminWinner[],
+      prizes: (prizes.data ?? []) as unknown as AdminPrize[],
     };
   });
 
