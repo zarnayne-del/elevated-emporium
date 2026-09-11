@@ -20,7 +20,6 @@ import { Route as ProductsSlugRouteImport } from './routes/products.$slug'
 import { Route as OrderIdRouteImport } from './routes/order.$id'
 import { Route as AdminProductsRouteImport } from './routes/admin.products'
 import { Route as AdminGiveawayRouteImport } from './routes/admin.giveaway'
-import { Route as ApiPublicNotifyOrderRouteImport } from './routes/api/public/notify-order'
 import { Route as ApiPublicImgSplatRouteImport } from './routes/api/public/img/$'
 import { Route as ApiPublicHooksMonthlyGiveawayDrawRouteImport } from './routes/api/public/hooks/monthly-giveaway-draw'
 
@@ -79,11 +78,6 @@ const AdminGiveawayRoute = AdminGiveawayRouteImport.update({
   path: '/giveaway',
   getParentRoute: () => AdminRoute,
 } as any)
-const ApiPublicNotifyOrderRoute = ApiPublicNotifyOrderRouteImport.update({
-  id: '/api/public/notify-order',
-  path: '/api/public/notify-order',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiPublicImgSplatRoute = ApiPublicImgSplatRouteImport.update({
   id: '/api/public/img/$',
   path: '/api/public/img/$',
@@ -108,7 +102,6 @@ export interface FileRoutesByFullPath {
   '/order/$id': typeof OrderIdRoute
   '/products/$slug': typeof ProductsSlugRoute
   '/admin/': typeof AdminIndexRoute
-  '/api/public/notify-order': typeof ApiPublicNotifyOrderRoute
   '/api/public/hooks/monthly-giveaway-draw': typeof ApiPublicHooksMonthlyGiveawayDrawRoute
   '/api/public/img/$': typeof ApiPublicImgSplatRoute
 }
@@ -123,7 +116,6 @@ export interface FileRoutesByTo {
   '/order/$id': typeof OrderIdRoute
   '/products/$slug': typeof ProductsSlugRoute
   '/admin': typeof AdminIndexRoute
-  '/api/public/notify-order': typeof ApiPublicNotifyOrderRoute
   '/api/public/hooks/monthly-giveaway-draw': typeof ApiPublicHooksMonthlyGiveawayDrawRoute
   '/api/public/img/$': typeof ApiPublicImgSplatRoute
 }
@@ -140,7 +132,6 @@ export interface FileRoutesById {
   '/order/$id': typeof OrderIdRoute
   '/products/$slug': typeof ProductsSlugRoute
   '/admin/': typeof AdminIndexRoute
-  '/api/public/notify-order': typeof ApiPublicNotifyOrderRoute
   '/api/public/hooks/monthly-giveaway-draw': typeof ApiPublicHooksMonthlyGiveawayDrawRoute
   '/api/public/img/$': typeof ApiPublicImgSplatRoute
 }
@@ -158,7 +149,6 @@ export interface FileRouteTypes {
     | '/order/$id'
     | '/products/$slug'
     | '/admin/'
-    | '/api/public/notify-order'
     | '/api/public/hooks/monthly-giveaway-draw'
     | '/api/public/img/$'
   fileRoutesByTo: FileRoutesByTo
@@ -173,7 +163,6 @@ export interface FileRouteTypes {
     | '/order/$id'
     | '/products/$slug'
     | '/admin'
-    | '/api/public/notify-order'
     | '/api/public/hooks/monthly-giveaway-draw'
     | '/api/public/img/$'
   id:
@@ -189,7 +178,6 @@ export interface FileRouteTypes {
     | '/order/$id'
     | '/products/$slug'
     | '/admin/'
-    | '/api/public/notify-order'
     | '/api/public/hooks/monthly-giveaway-draw'
     | '/api/public/img/$'
   fileRoutesById: FileRoutesById
@@ -203,7 +191,6 @@ export interface RootRouteChildren {
   TrackRoute: typeof TrackRoute
   OrderIdRoute: typeof OrderIdRoute
   ProductsSlugRoute: typeof ProductsSlugRoute
-  ApiPublicNotifyOrderRoute: typeof ApiPublicNotifyOrderRoute
   ApiPublicHooksMonthlyGiveawayDrawRoute: typeof ApiPublicHooksMonthlyGiveawayDrawRoute
   ApiPublicImgSplatRoute: typeof ApiPublicImgSplatRoute
 }
@@ -287,13 +274,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminGiveawayRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/api/public/notify-order': {
-      id: '/api/public/notify-order'
-      path: '/api/public/notify-order'
-      fullPath: '/api/public/notify-order'
-      preLoaderRoute: typeof ApiPublicNotifyOrderRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/public/img/$': {
       id: '/api/public/img/$'
       path: '/api/public/img/$'
@@ -334,7 +314,6 @@ const rootRouteChildren: RootRouteChildren = {
   TrackRoute: TrackRoute,
   OrderIdRoute: OrderIdRoute,
   ProductsSlugRoute: ProductsSlugRoute,
-  ApiPublicNotifyOrderRoute: ApiPublicNotifyOrderRoute,
   ApiPublicHooksMonthlyGiveawayDrawRoute:
     ApiPublicHooksMonthlyGiveawayDrawRoute,
   ApiPublicImgSplatRoute: ApiPublicImgSplatRoute,

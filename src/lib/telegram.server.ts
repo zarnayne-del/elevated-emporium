@@ -43,6 +43,21 @@ export async function notifyOrder(orderId: string) {
     .filter(Boolean)
     .join(", ");
 
+  // Receipts live in a private bucket — share a short-lived signed link only.
+  let receiptLink: string | null = null;
+  const stored = order.payment_screenshot_url;
+  if (stored) {
+    const marker = "/payment-screenshots/";
+    const idx = stored.indexOf(marker);
+    const path = idx >= 0 ? stored.slice(idx + marker.length) : /^https?:\/\//i.test(stored) ? null : stored;
+    if (path) {
+      const { data: signed } = await supabaseAdmin.storage
+        .from("payment-screenshots")
+        .createSignedUrl(path, 60 * 60 * 24 * 7);
+      receiptLink = signed?.signedUrl ?? null;
+    }
+  }
+
   // Plain text — avoids HTML parse errors from emails like <name@x.com>
   const message =
     `🟢 NEW ORDER ${order.order_number}\n` +
@@ -52,9 +67,7 @@ export async function notifyOrder(orderId: string) {
     `Subtotal: ${mmk(order.subtotal_cents)}\n` +
     `Shipping: ${mmk(order.shipping_cents)}\n` +
     `Total: ${mmk(order.total_cents)}` +
-    (order.payment_screenshot_url
-      ? `\n\nReceipt: ${order.payment_screenshot_url}`
-      : "");
+    (receiptLink ? `\n\nReceipt (valid 7 days): ${receiptLink}` : "");
 
   try {
     const res = await fetch(
