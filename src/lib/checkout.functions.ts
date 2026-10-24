@@ -97,9 +97,12 @@ export const placeOrder = createServerFn({ method: "POST" })
     // Fire Telegram notification (failure is logged but does not break checkout)
     try {
       const { notifyOrder } = await import("@/lib/telegram.server");
-      await notifyOrder(order.id);
-    } catch (e) {
-      console.error("notifyOrder failed:", e);
+      const notification = await notifyOrder(order.id);
+      if (!notification.sent) {
+        console.warn("Order saved; Telegram notification not delivered:", notification.reason);
+      }
+    } catch {
+      console.error("Order saved; Telegram notification failed");
     }
 
     return {

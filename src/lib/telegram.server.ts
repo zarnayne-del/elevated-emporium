@@ -1,4 +1,5 @@
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { sendTelegramOrderMessage } from "./telegram-delivery.server";
 
 export async function notifyOrder(orderId: string) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
@@ -17,14 +18,19 @@ export async function notifyOrder(orderId: string) {
     .single();
 
   if (orderErr || !order) {
-    console.error("notifyOrder: order not found", orderErr);
+    console.error("notifyOrder: order lookup failed");
     return { sent: false, reason: "order-not-found" };
   }
 
-  const { data: items } = await supabaseAdmin
+  const { data: items, error: itemsErr } = await supabaseAdmin
     .from("order_items")
     .select("product_name, quantity, unit_price_cents")
     .eq("order_id", orderId);
+
+  if (itemsErr) {
+    console.error("notifyOrder: item lookup failed");
+    return { sent: false, reason: "items-lookup-failed" };
+  }
 
   const USD_TO_MMK = 3500;
   const mmk = (cents: number) =>
@@ -70,33 +76,21 @@ export async function notifyOrder(orderId: string) {
     (receiptLink ? `\n\nReceipt (valid 7 days): ${receiptLink}` : "");
 
   try {
-    const res = await fetch(
-      `https://api.telegram.org/bot${token}/sendMessage`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          chat_id: chatId,
-          text: message,
-          disable_web_page_preview: true,
-        }),
-      }
-    );
-    if (!res.ok) {
-      const body = await res.text();
-      console.error("Telegram send failed:", res.status, body);
-      return { sent: false, reason: `telegram-${res.status}`, body };
-    }
-    await supabaseAdmin
+    const delivery = await sendTelegramOrderMessage(token, chatId, message);
+    if (!delivery.sent) return delivery;
+    const { error: updateErr } = await supabaseAdmin
       .from("orders")
       .update({
         notified_at: new Date().toISOString(),
         status: order.status === "pending" ? "confirmed" : order.status,
       })
       .eq("id", orderId);
+    if (updateErr) {
+      console.error("notifyOrder: Telegram accepted message but delivery record update failed");
+    }
     return { sent: true };
-  } catch (e) {
-    console.error("Telegram notification error:", e);
+  } catch {
+    console.error("Telegram notification failed during order processing");
     return { sent: false, reason: "exception" };
   }
 }
