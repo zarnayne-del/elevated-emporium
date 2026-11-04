@@ -1,3 +1,4 @@
+import { brandHead } from "@/lib/brand-head";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { fetchProducts } from "@/lib/product-fetch";
@@ -7,16 +8,7 @@ import { type Product, productImage, formatPrice, tileBg } from "@/lib/products"
 
 export const Route = createFileRoute("/")({
   component: HomePage,
-  head: () => ({
-    meta: [
-      { title: "Walki Talkie — Elevated Botanics, Collection 01" },
-      {
-        name: "description",
-        content:
-          "A symbiotic fusion of premium cultivars and architectural silhouettes. Designed for the high-functioning aestheticist.",
-      },
-    ],
-  }),
+  head: () => brandHead("Walki Talkie — Premium Cannabis & Streetwear", "Discover Walki Talkie’s premium cultivars, streetwear and accessories. Explore Collection 01 and the monthly giveaway.", "/"),
 });
 
 function HomePage() {

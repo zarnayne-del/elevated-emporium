@@ -1,3 +1,4 @@
+import { brandHead } from "@/lib/brand-head";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
@@ -12,16 +13,7 @@ const search = z.object({
 export const Route = createFileRoute("/shop")({
   component: ShopPage,
   validateSearch: (s) => search.parse(s),
-  head: () => ({
-    meta: [
-      { title: "Shop — Walki Talkie" },
-      {
-        name: "description",
-        content:
-          "Browse premium cannabis flower, streetwear apparel, and curated accessories from Walki Talkie.",
-      },
-    ],
-  }),
+  head: () => brandHead("Shop — Walki Talkie", "Browse premium cannabis flower, streetwear apparel, and curated accessories from Walki Talkie.", "/shop"),
 });
 
 const CATEGORIES = ["All", "Flower", "Streetwear", "Accessories"] as const;

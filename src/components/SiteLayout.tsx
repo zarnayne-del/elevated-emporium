@@ -28,7 +28,7 @@ export function SiteHeader() {
         to="/"
         className="font-display text-xl md:text-2xl font-bold tracking-tighter uppercase"
       >
-        Walki Talkie
+        WALKI TALKIE
       </Link>
       <div className="hidden md:flex gap-10 uppercase text-[11px] font-semibold tracking-[0.25em]">
         {navLinks}

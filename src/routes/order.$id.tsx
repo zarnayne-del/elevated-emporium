@@ -1,3 +1,4 @@
+import { brandHead } from "@/lib/brand-head";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
@@ -6,7 +7,7 @@ import { getOrderConfirmation } from "@/lib/checkout.functions";
 
 export const Route = createFileRoute("/order/$id")({
   component: OrderConfirmedPage,
-  head: () => ({ meta: [{ title: "Order Confirmed — Walki Talkie" }] }),
+  head: () => brandHead("Order Confirmed — Walki Talkie", "Your Walki Talkie order confirmation and tracking details."),
 });
 
 function OrderConfirmedPage() {

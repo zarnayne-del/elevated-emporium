@@ -1,3 +1,4 @@
+import { brandHead } from "@/lib/brand-head";
 import { createFileRoute, Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
@@ -21,7 +22,7 @@ import qrWavepay from "@/assets/qr-wavepay.jpg";
 
 export const Route = createFileRoute("/checkout")({
   component: CheckoutPage,
-  head: () => ({ meta: [{ title: "Checkout — Walki Talkie" }] }),
+  head: () => brandHead("Checkout — Walki Talkie", "Complete your Walki Talkie order with Myanmar delivery details and K Pay or Wave Pay payment.", "/checkout"),
   errorComponent: CheckoutErrorBoundary,
 });
 

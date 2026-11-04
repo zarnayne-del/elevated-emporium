@@ -1,3 +1,4 @@
+import { brandHead } from "@/lib/brand-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -14,6 +15,7 @@ import { safeCall } from "@/lib/server-call";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/giveaway")({
+  head: () => brandHead("Giveaway Management — Walki Talkie", "Manage Walki Talkie giveaway prizes, entries and winners.", "/admin/giveaway"),
   component: AdminGiveawayPage,
 });
 

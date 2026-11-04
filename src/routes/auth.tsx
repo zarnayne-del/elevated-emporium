@@ -1,3 +1,4 @@
+import { brandHead } from "@/lib/brand-head";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -5,16 +6,7 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/auth")({
   component: AuthPage,
-  head: () => ({
-    meta: [
-      { title: "Staff Sign In — Walki Talkie" },
-      { name: "description", content: "Sign in to the Walki Talkie staff area to manage orders, products and the monthly giveaway." },
-      { property: "og:title", content: "Staff Sign In — Walki Talkie" },
-      { property: "og:description", content: "Secure sign in for Walki Talkie staff." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
-  }),
+  head: () => brandHead("Staff Sign In — Walki Talkie", "Sign in to the Walki Talkie staff area to manage orders, products and the monthly giveaway.", "/auth"),
 });
 
 function AuthPage() {

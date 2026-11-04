@@ -1,3 +1,4 @@
+import { brandHead } from "@/lib/brand-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -9,6 +10,7 @@ import { toast } from "sonner";
 const STATUS_OPTIONS = ["pending", "payment_verified", "shipped", "delivered"] as const;
 
 export const Route = createFileRoute("/admin/")({
+  head: () => brandHead("Orders Management — Walki Talkie", "Manage incoming Walki Talkie orders and payment verification.", "/admin"),
   component: AdminOrdersPage,
 });
 

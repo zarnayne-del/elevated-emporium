@@ -1,3 +1,4 @@
+import { brandHead } from "@/lib/brand-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -14,6 +15,7 @@ import { safeCall } from "@/lib/server-call";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/products")({
+  head: () => brandHead("Products Management — Walki Talkie", "Manage the Walki Talkie product catalog and images.", "/admin/products"),
   component: AdminProductsPage,
 });
 
