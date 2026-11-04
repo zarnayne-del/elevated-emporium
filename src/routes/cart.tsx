@@ -1,3 +1,4 @@
+import { brandHead } from "@/lib/brand-head";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/SiteLayout";
 import { useCart, setQuantity, removeFromCart } from "@/lib/cart-store";
@@ -6,7 +7,7 @@ import { formatPrice, productImages } from "@/lib/products";
 
 export const Route = createFileRoute("/cart")({
   component: CartPage,
-  head: () => ({ meta: [{ title: "Cart — Walki Talkie" }] }),
+  head: () => brandHead("Cart — Walki Talkie", "Review your Walki Talkie items and order subtotal before checkout.", "/cart"),
 });
 
 function CartPage() {

@@ -1,3 +1,4 @@
+import { brandHead } from "@/lib/brand-head";
 import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -7,7 +8,7 @@ import { getAdminStatus } from "@/lib/admin.functions";
 export const Route = createFileRoute("/admin")({
   ssr: false,
   component: AdminLayout,
-  head: () => ({ meta: [{ title: "Admin — Walki Talkie" }] }),
+  head: () => brandHead("Admin — Walki Talkie", "Walki Talkie staff management area.", "/admin"),
 });
 
 function AdminLayout() {

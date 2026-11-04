@@ -1,3 +1,4 @@
+import { brandHead } from "@/lib/brand-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -8,15 +9,7 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/track")({
   component: TrackPage,
-  head: () => ({
-    meta: [
-      { title: "Track Order — Walki Talkie" },
-      {
-        name: "description",
-        content: "Look up the status of your Walki Talkie orders by phone number.",
-      },
-    ],
-  }),
+  head: () => brandHead("Track Order — Walki Talkie", "Look up the status of your Walki Talkie orders by phone number.", "/track"),
 });
 
 type OrderResult = {

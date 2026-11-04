@@ -1,3 +1,4 @@
+import { brandHead } from "@/lib/brand-head";
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -8,6 +9,7 @@ import { addToCart } from "@/lib/cart-store";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/products/$slug")({
+  head: () => brandHead("Product Details — Walki Talkie", "Explore the Walki Talkie collection, view product images and add your selection to your cart."),
   component: ProductPage,
   notFoundComponent: () => (
     <SiteLayout>
