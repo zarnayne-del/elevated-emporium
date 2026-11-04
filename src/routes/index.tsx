@@ -40,9 +40,6 @@ function HomePage() {
         <p className="max-w-xl text-base md:text-lg leading-relaxed mb-4 text-forest/80">
           Itemအကုန်ကြည့်ရန် Shop Flowerကိုနှိပ်ပါ.
         </p>
-        <p className="max-w-xl text-base md:text-lg leading-relaxed mb-10 text-safety font-semibold">
-          မိုးရာသီ promo အနေနဲ့ ဘာယူယူ 5% အပြင် သတ်မှတ် item တွေအထူးလျော့ဈေးဖြင့်ရယူလိုက်ပါ
-        </p>
         <div className="flex flex-wrap gap-4">
           <Link to="/shop" search={{ category: "Flower" }} className="btn-forest">
             Shop Flower
