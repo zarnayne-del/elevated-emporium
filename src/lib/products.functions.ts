@@ -1,6 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import type { Product } from "@/lib/products";
 
 export const PRODUCT_COLUMNS =
@@ -21,7 +20,8 @@ const ListProductsSchema = z.object({
 export const listProducts = createServerFn({ method: "POST" })
   .inputValidator((input) => ListProductsSchema.parse(input))
   .handler(async ({ data }) => {
-    let q = supabaseAdmin
+    const { publicCatalogClient } = await import("@/lib/public-catalog.server");
+    let q = publicCatalogClient()
       .from("products")
       .select(PRODUCT_COLUMNS)
       .order("sort_order", { ascending: true });
@@ -32,7 +32,7 @@ export const listProducts = createServerFn({ method: "POST" })
     const { data: rows, error } = await q;
 
     if (error) {
-      console.error("listProducts error:", error);
+      console.error("Catalog lookup failed");
       throw new Error("Could not load inventory.");
     }
 

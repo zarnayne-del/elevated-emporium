@@ -1,0 +1,11 @@
+REVOKE ALL ON public.user_roles FROM anon, authenticated;
+GRANT SELECT ON public.user_roles TO authenticated;
+GRANT ALL ON public.user_roles TO service_role;
+REVOKE SELECT ON public.products FROM anon, authenticated;
+GRANT SELECT (id,slug,name,category,subtitle,description,price_cents,color,in_stock,sort_order,image_url,image_path,image_urls) ON public.products TO anon, authenticated;
+REVOKE SELECT ON public.giveaway_prizes FROM anon, authenticated;
+GRANT SELECT (id,title,description,prize_value,image_url,end_date,is_active,updated_at) ON public.giveaway_prizes TO anon, authenticated;
+DROP POLICY IF EXISTS "public read giveaway_prizes" ON public.giveaway_prizes;
+CREATE POLICY "active prizes public read" ON public.giveaway_prizes FOR SELECT TO anon, authenticated USING (is_active = true);
+REVOKE EXECUTE ON FUNCTION public.giveaway_prizes_set_updated_at() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.giveaway_prizes_single_active() FROM PUBLIC, anon, authenticated;
