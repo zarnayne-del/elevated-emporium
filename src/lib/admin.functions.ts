@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { assertAdmin, receiptPath, validateImage, isLawfulMerchandise } from "@/lib/security-policy";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 type AuthedContext = {
@@ -12,28 +13,9 @@ type AuthedContext = {
  * RLS-scoped client) and only then hands back the privileged service client.
  */
 async function requireAdmin(context: AuthedContext) {
-  const { data, error } = await context.supabase
-    .from("user_roles")
-    .select("role")
-    .eq("user_id", context.userId)
-    .eq("role", "admin")
-    .maybeSingle();
-
-  if (error || !data) {
-    throw new Response("Forbidden: admin access required", { status: 403 });
-  }
+  await assertAdmin(context);
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   return supabaseAdmin;
-}
-
-/** Turns a stored receipt reference (path or legacy public URL) into a storage path. */
-function receiptPath(stored: string | null): string | null {
-  if (!stored) return null;
-  const marker = "/payment-screenshots/";
-  const idx = stored.indexOf(marker);
-  if (idx >= 0) return stored.slice(idx + marker.length);
-  if (/^https?:\/\//i.test(stored)) return null;
-  return stored;
 }
 
 export const getAdminStatus = createServerFn({ method: "GET" })
@@ -48,19 +30,6 @@ export const getAdminStatus = createServerFn({ method: "GET" })
       .maybeSingle();
     if (data) return { isAdmin: true };
 
-    // One-time bootstrap: if no admin exists yet, the first signed-in account
-    // claims ownership of the store. Afterwards this branch can never run.
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { count } = await supabaseAdmin
-      .from("user_roles")
-      .select("id", { count: "exact", head: true })
-      .eq("role", "admin");
-    if ((count ?? 0) === 0) {
-      const { error } = await supabaseAdmin
-        .from("user_roles")
-        .insert({ user_id: ctx.userId, role: "admin" });
-      if (!error) return { isAdmin: true };
-    }
     return { isAdmin: false };
   });
 
@@ -73,7 +42,7 @@ export const adminListOrders = createServerFn({ method: "GET" })
     const { data, error } = await admin
       .from("orders")
       .select(
-        "id, order_number, email, phone_number, shipping_name, shipping_city, shipping_country, total_cents, status, payment_screenshot_url, created_at"
+        "id, order_number, email, phone_number, shipping_name, shipping_city, shipping_country, total_cents, status, payment_screenshot_url, created_at, notified_at"
       )
       .order("created_at", { ascending: false })
       .limit(500);
@@ -86,14 +55,14 @@ export const adminListOrders = createServerFn({ method: "GET" })
         if (path) {
           const { data: signed } = await admin.storage
             .from("payment-screenshots")
-            .createSignedUrl(path, 3600);
+            .createSignedUrl(path, 300);
           receipt_url = signed?.signedUrl ?? null;
         }
         const { payment_screenshot_url: _drop, ...rest } = o;
         return { ...rest, receipt_url };
       })
     );
-    return { orders };
+    return { orders, notificationConfigured: Boolean(process.env["TELEGRAM_BOT_TOKEN"] && process.env["TELEGRAM_CHAT_ID"]) };
   });
 
 export const adminUpdateOrderStatus = createServerFn({ method: "POST" })
@@ -108,6 +77,16 @@ export const adminUpdateOrderStatus = createServerFn({ method: "POST" })
   )
   .handler(async ({ context, data }) => {
     const admin = await requireAdmin(context as unknown as AuthedContext);
+    const { data: order, error: lookupError } = await admin.from("orders")
+      .select("id").eq("id", data.id).maybeSingle();
+    const { data: items, error: itemsError } = await admin.from("order_items")
+      .select("product_id").eq("order_id", data.id);
+    const { data: merchandise, error: productError } = await admin.from("products")
+      .select("id,category,name,slug,description").in("id", (items ?? []).map(item => item.product_id));
+    if (lookupError || itemsError || productError || !order || !items?.length ||
+        items.some(item => !merchandise?.some(product => product.id === item.product_id && isLawfulMerchandise(product)))) {
+      throw new Error("Status changes are paused for controlled or unverified merchandise orders.");
+    }
     const { error } = await admin
       .from("orders")
       .update({ status: data.status })
@@ -213,16 +192,7 @@ export const adminUploadImage = createServerFn({ method: "POST" })
     const file = data.get("file");
     const folder = String(data.get("folder") ?? "").replace(/[^a-z0-9-]/g, "");
     if (!(file instanceof File)) throw new Error("Select an image");
-    if (file.size < 1 || file.size > 5 * 1024 * 1024) {
-      throw new Error("Image must be smaller than 5MB");
-    }
-    const extensions: Record<string, string> = {
-      "image/jpeg": "jpg",
-      "image/png": "png",
-      "image/webp": "webp",
-    };
-    const extension = extensions[file.type];
-    if (!extension) throw new Error("Use a JPG, PNG, or WebP image");
+    const extension = await validateImage(file);
 
     const path = `${folder ? `${folder}/` : ""}${crypto.randomUUID()}.${extension}`;
     const { error } = await admin.storage
@@ -230,7 +200,8 @@ export const adminUploadImage = createServerFn({ method: "POST" })
       .upload(path, file, { contentType: file.type, upsert: false });
     if (error) throw new Error("Could not upload image");
     const { data: pub } = admin.storage.from("product-images").getPublicUrl(path);
-    return { url: pub.publicUrl };
+    const browserBase = process.env["VITE_SUPABASE_URL"];
+    return { url: browserBase ? `${browserBase}/storage/v1/object/public/product-images/${path}` : pub.publicUrl };
   });
 
 /* --------------------------------- giveaway -------------------------------- */
