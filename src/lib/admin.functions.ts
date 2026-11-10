@@ -2,9 +2,12 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { assertAdmin, receiptPath, validateImage, isLawfulMerchandise } from "@/lib/security-policy";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/integrations/supabase/types";
+import { ORDER_STATUSES, canTransitionOrderStatus } from "@/lib/order-status";
 
 type AuthedContext = {
-  supabase: { from: (t: string) => any };
+  supabase: SupabaseClient<Database>;
   userId: string;
 };
 
@@ -71,14 +74,14 @@ export const adminUpdateOrderStatus = createServerFn({ method: "POST" })
     z
       .object({
         id: z.string().uuid(),
-        status: z.enum(["pending", "payment_verified", "shipped", "delivered"]),
+        status: z.enum(ORDER_STATUSES),
       })
       .parse(input)
   )
   .handler(async ({ context, data }) => {
     const admin = await requireAdmin(context as unknown as AuthedContext);
     const { data: order, error: lookupError } = await admin.from("orders")
-      .select("id").eq("id", data.id).maybeSingle();
+      .select("id,status").eq("id", data.id).maybeSingle();
     const { data: items, error: itemsError } = await admin.from("order_items")
       .select("product_id").eq("order_id", data.id);
     const { data: merchandise, error: productError } = await admin.from("products")
@@ -87,10 +90,13 @@ export const adminUpdateOrderStatus = createServerFn({ method: "POST" })
         items.some(item => !merchandise?.some(product => product.id === item.product_id && isLawfulMerchandise(product)))) {
       throw new Error("Status changes are paused for controlled or unverified merchandise orders.");
     }
+    if (!canTransitionOrderStatus(order.status, data.status)) {
+      throw new Error("Order status must advance one stage at a time.");
+    }
     const { error } = await admin
       .from("orders")
       .update({ status: data.status })
-      .eq("id", data.id);
+      .eq("id", data.id).eq("status", order.status).select("id");
     if (error) throw new Error("Could not update order status");
     return { ok: true as const };
   });

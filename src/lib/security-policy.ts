@@ -16,7 +16,7 @@ export function receiptPath(stored: string | null): string | null {
 }
 
 export async function assertAdmin(context: {
-  supabase: { from: (table: string) => any }; userId: string;
+  supabase: import('@supabase/supabase-js').SupabaseClient<import('@/integrations/supabase/types').Database>; userId: string;
 }): Promise<void> {
   const { data, error } = await context.supabase.from("user_roles").select("role")
     .eq("user_id", context.userId).eq("role", "admin").maybeSingle();
