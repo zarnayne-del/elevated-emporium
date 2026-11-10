@@ -1,6 +1,6 @@
 # Remediation roadmap
-- [ ] Security audit, remove admin bootstrap, restrict public PII and receipts.
-- [ ] Enforce browse-only controlled items without altering records.
-- [ ] Safe reliability fixes and Telegram diagnostics; no purchases or sends.
-- [ ] Accessibility, factual copy, Privacy/Terms and metadata.
-- [ ] Tests, lint, preview checks and final diff review; no publishing.
+- [ ] Verify security, admin grants, public PII restrictions and private receipts.
+- [ ] Block controlled-item discovery and purchasing without altering records.
+- [ ] Consistent lawful-order statuses and mocked Telegram diagnostics; no purchases or sends.
+- [ ] Preserve lips identity, exact branding/domain, factual copy, working footer links and mobile layout.
+- [ ] Tests, lint, preview diagnostics and final review; no publishing.
