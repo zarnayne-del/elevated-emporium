@@ -11,13 +11,20 @@ import { isLawfulMerchandise } from "@/lib/security-policy";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/products/$slug")({
-  head: ({ params }) => brandHead("Apparel Details — Walki Talkie", "View verified non-controlled Walki Talkie apparel details and images.", `/products/${encodeURIComponent(params.slug)}`),
+  head: ({ params }) =>
+    brandHead(
+      "Apparel Details — Walki Talkie",
+      "View verified non-controlled Walki Talkie apparel details and images.",
+      `/products/${encodeURIComponent(params.slug)}`,
+    ),
   component: ProductPage,
   notFoundComponent: () => (
     <SiteLayout>
       <div className="px-8 py-32 text-center">
         <h1 className="font-display text-5xl uppercase mb-4">Not Found</h1>
-        <Link to="/shop" className="btn-forest mt-6">Back to shop</Link>
+        <Link to="/shop" className="btn-forest mt-6">
+          Back to shop
+        </Link>
       </div>
     </SiteLayout>
   ),
@@ -28,7 +35,11 @@ function ProductPage() {
   const navigate = useNavigate();
   const [activeIdx, setActiveIdx] = useState(0);
 
-  const { data: product, isLoading, isError } = useQuery({
+  const {
+    data: product,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["products", slug],
     queryFn: async () => {
       const rows = await fetchProducts({ slug });
@@ -53,7 +64,9 @@ function ProductPage() {
       <SiteLayout>
         <div className="px-8 py-32 text-center">
           <h1 className="font-display text-3xl uppercase">Product not found</h1>
-          <Link to="/shop" className="btn-forest mt-6">Back to shop</Link>
+          <Link to="/shop" className="btn-forest mt-6">
+            Back to shop
+          </Link>
         </div>
       </SiteLayout>
     );
@@ -78,11 +91,12 @@ function ProductPage() {
   const images = productImages_(product);
   const activeImg = images[activeIdx] ?? images[0];
 
-
   return (
     <SiteLayout>
       <article className="grid grid-cols-1 lg:grid-cols-2 border-b-2 border-forest">
-        <div className={`${tileBg(product.color)} border-r-0 lg:border-r-2 border-forest p-8 md:p-16`}>
+        <div
+          className={`${tileBg(product.color)} border-r-0 lg:border-r-2 border-forest p-8 md:p-16`}
+        >
           <div className="flex items-center justify-center">
             {activeImg && (
               <img
@@ -97,7 +111,8 @@ function ProductPage() {
           {images.length > 1 && (
             <div className="mt-6 flex gap-3 flex-wrap justify-center">
               {images.map((src, i) => (
-                <Button variant="outline"
+                <Button
+                  variant="outline"
                   key={src}
                   aria-label={`View product image ${i + 1}`}
                   aria-pressed={i === activeIdx}
@@ -115,9 +130,7 @@ function ProductPage() {
           <h1 className="font-display text-4xl md:text-5xl uppercase tracking-tighter leading-none mb-4">
             {product.name}
           </h1>
-          <p className="text-sm uppercase tracking-wider text-forest/60 mb-8">
-            {product.subtitle}
-          </p>
+          <p className="text-sm uppercase tracking-wider text-forest/60 mb-8">{product.subtitle}</p>
           <p className="text-3xl font-display tabular-nums mb-10">
             {formatPrice(product.price_cents)}
           </p>
@@ -125,10 +138,16 @@ function ProductPage() {
             {product.description}
           </p>
           <div className="flex flex-col sm:flex-row gap-3 mb-10">
-            <Button onClick={handleAdd} disabled={!product.in_stock || !isLawfulMerchandise(product)} className="btn-outline flex-1">
+            <Button
+              onClick={handleAdd}
+              disabled={!product.in_stock || !isLawfulMerchandise(product)}
+              className="btn-outline flex-1"
+            >
               Add to Cart
             </Button>
-            <Button disabled className="btn-forest flex-1">Purchasing paused</Button>
+            <Button disabled className="btn-forest flex-1">
+              Purchasing paused
+            </Button>
           </div>
           <div className="mt-auto pt-8 border-t border-forest/20 grid grid-cols-2 gap-6 label-mono text-forest/70">
             <div>
@@ -137,7 +156,9 @@ function ProductPage() {
             </div>
             <div>
               <p className="text-forest mb-1">Questions</p>
-              <Link to="/track" className="underline">Customer service</Link>
+              <Link to="/track" className="underline">
+                Customer service
+              </Link>
             </div>
           </div>
         </div>

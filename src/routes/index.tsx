@@ -9,7 +9,12 @@ import { type Product, productImage, formatPrice, tileBg } from "@/lib/products"
 
 export const Route = createFileRoute("/")({
   component: HomePage,
-  head: () => brandHead("WALKI TALKIE — Streetwear", "WALKI TALKIE apparel, customer service and private staff management.", "/"),
+  head: () =>
+    brandHead(
+      "WALKI TALKIE — Streetwear",
+      "WALKI TALKIE apparel, customer service and private staff management.",
+      "/",
+    ),
 });
 
 function HomePage() {
@@ -32,11 +37,11 @@ function HomePage() {
     <SiteLayout>
       {/* Hero */}
       <header className="border-b-2 border-forest p-6 md:p-16 lg:p-20">
-        <span className="label-mono text-safety mb-6 block">
-          WALKI TALKIE / Streetwear
-        </span>
+        <span className="label-mono text-safety mb-6 block">WALKI TALKIE / Streetwear</span>
         <h1 className="text-5xl md:text-8xl lg:text-9xl font-display font-bold uppercase leading-[0.85] tracking-tighter mb-8">
-          WALKI<br />TALKIE
+          WALKI
+          <br />
+          TALKIE
         </h1>
         <p className="max-w-xl text-base md:text-lg leading-relaxed mb-4 text-forest/80">
           ဝေါ်ကိတော်ကီ
@@ -85,13 +90,10 @@ function HomePage() {
             </div>
           )}
           {products?.map((p) => (
-            <Link
-              key={p.id}
-              to="/products/$slug"
-              params={{ slug: p.slug }}
-              className="group"
-            >
-              <div className={`aspect-[3/4] ${tileBg(p.color)} border-2 border-forest mb-4 overflow-hidden`}>
+            <Link key={p.id} to="/products/$slug" params={{ slug: p.slug }} className="group">
+              <div
+                className={`aspect-[3/4] ${tileBg(p.color)} border-2 border-forest mb-4 overflow-hidden`}
+              >
                 <img
                   src={productImage(p)}
                   alt={p.name}
@@ -106,13 +108,9 @@ function HomePage() {
                   <h3 className="font-display text-base md:text-lg uppercase mb-1 truncate">
                     {p.name}
                   </h3>
-                  <p className="label-mono text-forest/60 truncate">
-                    {p.subtitle}
-                  </p>
+                  <p className="label-mono text-forest/60 truncate">{p.subtitle}</p>
                 </div>
-                <span className="font-semibold tabular-nums">
-                  {formatPrice(p.price_cents)}
-                </span>
+                <span className="font-semibold tabular-nums">{formatPrice(p.price_cents)}</span>
               </div>
             </Link>
           ))}
@@ -121,9 +119,16 @@ function HomePage() {
 
       <section className="px-6 md:px-8 py-16 bg-forest text-sand border-t-2 border-forest">
         <p className="label-mono text-safety mb-4">Customer Service</p>
-        <h2 className="font-display text-3xl md:text-4xl uppercase mb-6">Here for your questions.</h2>
-        <p className="max-w-xl leading-relaxed mb-8">Purchasing and order-linked giveaways are paused. Existing order records remain available to authorized staff. For private order assistance, contact customer service.</p>
-        <Link to="/track" className="btn-outline border-sand text-sand">Order Assistance</Link>
+        <h2 className="font-display text-3xl md:text-4xl uppercase mb-6">
+          Here for your questions.
+        </h2>
+        <p className="max-w-xl leading-relaxed mb-8">
+          Purchasing and order-linked giveaways are paused. Existing order records remain available
+          to authorized staff. For private order assistance, contact customer service.
+        </p>
+        <Link to="/track" className="btn-outline border-sand text-sand">
+          Order Assistance
+        </Link>
       </section>
     </SiteLayout>
   );

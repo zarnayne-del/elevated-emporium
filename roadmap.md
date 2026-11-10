@@ -1,4 +1,5 @@
 # Remediation roadmap
+
 - [ ] Verify security, admin grants, public PII restrictions and private receipts.
 - [ ] Block controlled-item discovery and purchasing without altering records.
 - [ ] Consistent lawful-order statuses and mocked Telegram diagnostics; no purchases or sends.

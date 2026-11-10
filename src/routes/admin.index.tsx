@@ -11,7 +11,12 @@ import { ORDER_STATUSES, canTransitionOrderStatus, isOrderStatus } from "@/lib/o
 const STATUS_OPTIONS = ORDER_STATUSES;
 
 export const Route = createFileRoute("/admin/")({
-  head: () => brandHead("Orders Management — Walki Talkie", "Manage incoming Walki Talkie orders and payment verification.", "/admin"),
+  head: () =>
+    brandHead(
+      "Orders Management — Walki Talkie",
+      "Manage incoming Walki Talkie orders and payment verification.",
+      "/admin",
+    ),
   component: AdminOrdersPage,
 });
 
@@ -49,7 +54,11 @@ function AdminOrdersPage() {
           Incoming Orders
         </h1>
       </header>
-      {error && <p role="alert" className="mb-6 text-destructive">Orders could not load. Please sign in again or retry.</p>}
+      {error && (
+        <p role="alert" className="mb-6 text-destructive">
+          Orders could not load. Please sign in again or retry.
+        </p>
+      )}
 
       {isLoading ? (
         <p className="label-mono text-forest/60">Loading…</p>
@@ -76,7 +85,9 @@ function AdminOrdersPage() {
                   <td className="px-4 py-3 font-display tracking-wider">{o.order_number}</td>
                   <td className="px-4 py-3">
                     <div className="font-semibold">{o.shipping_name}</div>
-                    <div className="label-mono text-forest/60">{o.phone_number ?? o.email ?? "—"}</div>
+                    <div className="label-mono text-forest/60">
+                      {o.phone_number ?? o.email ?? "—"}
+                    </div>
                   </td>
                   <td className="px-4 py-3">
                     {o.shipping_city}, {o.shipping_country}
@@ -93,7 +104,9 @@ function AdminOrdersPage() {
                     >
                       {!isOrderStatus(o.status) && <option value={o.status}>{o.status}</option>}
                       {STATUS_OPTIONS.map((s) => (
-                        <option key={s} value={s} disabled={!canTransitionOrderStatus(o.status, s)}>{s.replace(/_/g, " ")}</option>
+                        <option key={s} value={s} disabled={!canTransitionOrderStatus(o.status, s)}>
+                          {s.replace(/_/g, " ")}
+                        </option>
                       ))}
                     </select>
                   </td>

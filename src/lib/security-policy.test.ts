@@ -11,13 +11,22 @@ test("Flower and cannabis-labelled apparel are never lawful storefront merchandi
 
 test("receipt paths reject traversal and public query-string links", () => {
   expect(receiptPath("../receipt.png")).toBe(null);
-  expect(receiptPath("2026-11-10/12345678-1234-1234-1234-123456789abc.png?token=example")).toBe(null);
-  expect(receiptPath("2026-11-10/12345678-1234-1234-1234-123456789abc.png"))
-    .toBe("2026-11-10/12345678-1234-1234-1234-123456789abc.png");
+  expect(receiptPath("2026-11-10/12345678-1234-1234-1234-123456789abc.png?token=example")).toBe(
+    null,
+  );
+  expect(receiptPath("2026-11-10/12345678-1234-1234-1234-123456789abc.png")).toBe(
+    "2026-11-10/12345678-1234-1234-1234-123456789abc.png",
+  );
 });
 
 test("a signed-in account without an admin role is denied", async () => {
-  const query = { select: () => query, eq: () => query, maybeSingle: async () => ({ data: null, error: null }) };
+  const query = {
+    select: () => query,
+    eq: () => query,
+    maybeSingle: async () => ({ data: null, error: null }),
+  };
   const supabase = { from: () => query } as unknown as SupabaseClient<Database>;
-  await expect(assertAdmin({ supabase, userId: "test-user" })).rejects.toThrow("Staff authorization required.");
+  await expect(assertAdmin({ supabase, userId: "test-user" })).rejects.toThrow(
+    "Staff authorization required.",
+  );
 });

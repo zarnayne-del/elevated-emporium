@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 
 const KEY = "kc-age-verified-v1";
 
@@ -7,13 +9,13 @@ export function AgeGate() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (localStorage.getItem(KEY) !== "yes") setOpen(true);
+    try { if (localStorage.getItem(KEY) !== "yes") setOpen(true); } catch { setOpen(true); }
   }, []);
 
   if (!open) return null;
 
   const accept = () => {
-    localStorage.setItem(KEY, "yes");
+    try { localStorage.setItem(KEY, "yes"); } catch { /* Allow this visit without persistence. */ }
     setOpen(false);
   };
 
@@ -22,42 +24,36 @@ export function AgeGate() {
   };
 
   return (
-    <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-forest/90 backdrop-blur-sm px-6"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="age-gate-title"
-    >
-      <div className="w-full max-w-lg bg-sand border-2 border-forest p-10 md:p-14 text-center">
+    <Dialog open={open}>
+      <DialogContent onEscapeKeyDown={e => e.preventDefault()} onPointerDownOutside={e => e.preventDefault()} className="z-[100] w-[calc(100%-3rem)] max-w-lg bg-sand border-2 border-forest p-8 md:p-14 text-center [&>button]:hidden">
         <p className="label-mono text-safety mb-4">Restricted Access</p>
-        <h2
+        <DialogTitle
           id="age-gate-title"
           className="font-display text-4xl md:text-5xl uppercase tracking-tighter mb-6 text-forest leading-none"
         >
           You must be<br />18 or older
-        </h2>
-        <p className="text-sm leading-relaxed mb-10 text-forest/80">
-          Walki Talkie sells regulated cannabis goods and curated
-          streetwear. Please confirm your age to continue.
-        </p>
+        </DialogTitle>
+        <DialogDescription className="text-sm leading-relaxed mb-10 text-muted-foreground">
+          Please confirm your age to enter WALKI TALKIE. Purchasing is currently paused.
+        </DialogDescription>
         <div className="grid grid-cols-2 gap-3">
-          <button
+          <Button variant="outline"
             onClick={reject}
             className="py-4 border-2 border-forest font-display uppercase text-xs tracking-[0.2em] hover:bg-forest hover:text-sand transition-colors cursor-pointer"
           >
             Exit
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={accept}
             className="py-4 bg-forest text-sand font-display uppercase text-xs tracking-[0.2em] hover:bg-moss transition-colors cursor-pointer"
           >
             I am 18+
-          </button>
+          </Button>
         </div>
         <p className="label-mono text-forest/40 mt-8">
-          By entering you agree to our terms &amp; age policy.
+          Adults only.
         </p>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

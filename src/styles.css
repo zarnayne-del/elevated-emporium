@@ -37,9 +37,9 @@
   --color-safety: var(--safety);
   --color-ink: var(--ink);
 
-  --font-display: 'Space Grotesk', sans-serif;
-  --font-sans: 'Inter', sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --font-display: "Space Grotesk", sans-serif;
+  --font-sans: "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
 }
 
 :root {
@@ -91,7 +91,8 @@
     text-shadow: none !important;
   }
 
-  html, body {
+  html,
+  body {
     background-color: var(--color-sand);
     color: var(--color-forest);
     font-family: var(--font-sans);
@@ -105,7 +106,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation: none !important;
     transition: none !important;
   }

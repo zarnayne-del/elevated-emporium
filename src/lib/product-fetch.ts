@@ -23,17 +23,20 @@ export async function fetchProducts(opts?: {
     const products = await Promise.race([
       listProducts({ data: { slug: opts?.slug, limit: opts?.limit } }),
       new Promise<never>((_, reject) => {
-        timer = setTimeout(() => reject(new Error("The connection timed out. Please try again.")),
-          opts?.timeoutMs ?? DEFAULT_TIMEOUT_MS);
+        timer = setTimeout(
+          () => reject(new Error("The connection timed out. Please try again.")),
+          opts?.timeoutMs ?? DEFAULT_TIMEOUT_MS,
+        );
       }),
     ]);
     return products;
   } catch (err: unknown) {
     // If the server function itself aborted, surface as a mobile-friendly timeout.
-    if (err instanceof Error && (err.message.includes("abort") || err.message.includes("signal") || err.name === "AbortError")) {
-      throw new Error(
-        "The connection timed out. Check your mobile data signal and try again."
-      );
+    if (
+      err instanceof Error &&
+      (err.message.includes("abort") || err.message.includes("signal") || err.name === "AbortError")
+    ) {
+      throw new Error("The connection timed out. Check your mobile data signal and try again.");
     }
     throw new Error(err instanceof Error ? err.message : "Could not load inventory.");
   } finally {

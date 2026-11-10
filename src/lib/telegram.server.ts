@@ -13,7 +13,7 @@ export async function notifyOrder(orderId: string) {
   const { data: order, error: orderErr } = await supabaseAdmin
     .from("orders")
     .select(
-      "id, order_number, email, phone_number, shipping_name, shipping_address, shipping_city, shipping_zip, shipping_country, subtotal_cents, shipping_cents, delivery_cents, total_cents, status, notified_at"
+      "id, order_number, email, phone_number, shipping_name, shipping_address, shipping_city, shipping_zip, shipping_country, subtotal_cents, shipping_cents, delivery_cents, total_cents, status, notified_at",
     )
     .eq("id", orderId)
     .single();
@@ -33,10 +33,23 @@ export async function notifyOrder(orderId: string) {
     console.error("notifyOrder: item lookup failed");
     return { sent: false, reason: "items-lookup-failed" };
   }
-  const { data: products, error: productsError } = await supabaseAdmin.from("products")
-    .select("id,category,name,slug,description").in("id", (items ?? []).map(item => item.product_id));
-  if (productsError || !items?.length || items.some(item =>
-    !products?.some(product => product.id === item.product_id && isLawfulMerchandise(product)))) {
+  const { data: products, error: productsError } = await supabaseAdmin
+    .from("products")
+    .select("id,category,name,slug,description")
+    .in(
+      "id",
+      (items ?? []).map((item) => item.product_id),
+    );
+  if (
+    productsError ||
+    !items?.length ||
+    items.some(
+      (item) =>
+        !products?.some(
+          (product) => product.id === item.product_id && isLawfulMerchandise(product),
+        ),
+    )
+  ) {
     return { sent: false, reason: "controlled-or-unverified-merchandise" };
   }
 
@@ -45,7 +58,7 @@ export async function notifyOrder(orderId: string) {
     `${Math.round((cents / 100) * USD_TO_MMK).toLocaleString("en-US")} Ks`;
 
   const lines = (items ?? []).map(
-    (p) => `• ${p.quantity}× ${p.product_name} — ${mmk(p.unit_price_cents * p.quantity)}`
+    (p) => `• ${p.quantity}× ${p.product_name} — ${mmk(p.unit_price_cents * p.quantity)}`,
   );
 
   const addr = [

@@ -9,20 +9,29 @@ export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const navLinks = (
     <>
-      <Link to="/shop" search={{ category: "Streetwear" }} onClick={() => setOpen(false)} className="hover:text-safety transition-colors">
+      <Link
+        to="/shop"
+        search={{ category: "Streetwear" }}
+        onClick={() => setOpen(false)}
+        className="hover:text-safety transition-colors"
+      >
         Streetwear
       </Link>
-      <Link to="/track" onClick={() => setOpen(false)} className="hover:text-safety transition-colors">
+      <Link
+        to="/track"
+        onClick={() => setOpen(false)}
+        className="hover:text-safety transition-colors"
+      >
         Track Order
       </Link>
     </>
   );
   return (
-    <nav aria-label="Main navigation" className="sticky top-0 z-40 bg-sand border-b-2 border-forest px-4 md:px-8 py-5 flex gap-3 justify-between items-center">
-      <Link
-        to="/"
-        className="font-display text-base md:text-2xl font-bold uppercase"
-      >
+    <nav
+      aria-label="Main navigation"
+      className="sticky top-0 z-40 bg-sand border-b-2 border-forest px-4 md:px-8 py-5 flex gap-3 justify-between items-center"
+    >
+      <Link to="/" className="font-display text-base md:text-2xl font-bold uppercase">
         WALKI TALKIE
       </Link>
       <div className="hidden md:flex gap-10 uppercase text-[11px] font-semibold tracking-[0.25em]">
@@ -44,7 +53,14 @@ export function SiteHeader() {
           aria-expanded={open}
           className="md:hidden min-h-11 min-w-11 border-2 border-forest p-2"
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+          >
             {open ? <path d="M6 6l12 12M6 18L18 6" /> : <path d="M3 6h18M3 12h18M3 18h18" />}
           </svg>
         </Button>
@@ -67,7 +83,9 @@ export function SiteFooter() {
         © {new Date().getFullYear()} Walki Talkie / All Rights Reserved
       </div>
       <div className="flex flex-wrap justify-center gap-6 label-mono items-center">
-        <Link to="/track" className="hover:text-safety">Order Assistance</Link>
+        <Link to="/track" className="hover:text-safety">
+          Order Assistance
+        </Link>
         <a
           href={TELEGRAM_SUPPORT_URL}
           target="_blank"
@@ -91,7 +109,7 @@ function FloatingSupport() {
       className="fixed bottom-5 right-5 z-50 bg-forest text-sand border-2 border-forest hover:bg-safety transition-colors px-4 py-3 flex items-center gap-2 label-mono"
     >
       <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-        <path d="M21.5 3.5 2.8 10.7c-1 .4-1 1.8 0 2.2l4.7 1.7 1.8 5.7c.3.9 1.4 1.1 2 .4l2.6-2.7 4.7 3.5c.7.5 1.7.1 1.9-.7l3.4-15.5c.2-1-.8-1.8-1.4-1.8zM10 15l-.5 4.2c0 .1.1.1.2 0l2.4-2.4-2.1-1.8z"/>
+        <path d="M21.5 3.5 2.8 10.7c-1 .4-1 1.8 0 2.2l4.7 1.7 1.8 5.7c.3.9 1.4 1.1 2 .4l2.6-2.7 4.7 3.5c.7.5 1.7.1 1.9-.7l3.4-15.5c.2-1-.8-1.8-1.4-1.8zM10 15l-.5 4.2c0 .1.1.1.2 0l2.4-2.4-2.1-1.8z" />
       </svg>
       Support
     </a>

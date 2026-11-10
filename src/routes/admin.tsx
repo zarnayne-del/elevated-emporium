@@ -71,7 +71,7 @@ function AdminLayout() {
 
   return (
     <div className="min-h-screen flex flex-col bg-sand text-forest">
-      <header className="border-b-2 border-forest px-6 md:px-8 py-5 flex justify-between items-center">
+      <header className="border-b-2 border-forest px-6 md:px-8 py-5 flex flex-wrap gap-4 justify-between items-center">
         <div className="flex items-center gap-4">
           <Link to="/" className="font-display text-xl uppercase tracking-tighter">
             WALKI TALKIE

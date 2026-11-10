@@ -14,7 +14,12 @@ const search = z.object({
 export const Route = createFileRoute("/shop")({
   component: ShopPage,
   validateSearch: (s) => search.parse(s),
-  head: () => brandHead("Streetwear — Walki Talkie", "Explore the verified non-controlled Walki Talkie apparel collection.", "/shop"),
+  head: () =>
+    brandHead(
+      "Streetwear — Walki Talkie",
+      "Explore the verified non-controlled Walki Talkie apparel collection.",
+      "/shop",
+    ),
 });
 
 const CATEGORIES = ["All", "Streetwear"] as const;
@@ -23,7 +28,14 @@ function ShopPage() {
   const { category } = Route.useSearch();
   const navigate = Route.useNavigate();
 
-  const { data: products, isLoading, isError, error, refetch, isFetching } = useQuery({
+  const {
+    data: products,
+    isLoading,
+    isError,
+    error,
+    refetch,
+    isFetching,
+  } = useQuery({
     queryKey: ["products", "all"],
     queryFn: () => fetchProducts(),
     retry: 3,
@@ -31,10 +43,7 @@ function ShopPage() {
     staleTime: 60_000,
   });
 
-
-  const filtered = category
-    ? products?.filter((p: Product) => p.category === category)
-    : products;
+  const filtered = category ? products?.filter((p: Product) => p.category === category) : products;
 
   return (
     <SiteLayout>
@@ -58,7 +67,9 @@ function ShopPage() {
                 })
               }
               className={`px-5 py-2 border-2 border-forest font-display uppercase text-[11px] tracking-[0.2em] transition-colors cursor-pointer ${
-                active ? "bg-forest text-sand" : "bg-sand text-forest hover:bg-forest hover:text-sand"
+                active
+                  ? "bg-forest text-sand"
+                  : "bg-sand text-forest hover:bg-forest hover:text-sand"
               }`}
             >
               {c}
@@ -68,9 +79,7 @@ function ShopPage() {
       </section>
 
       <section className="px-6 md:px-8 py-12 md:py-16">
-        {isLoading && (
-          <p className="label-mono text-forest/60">Loading inventory…</p>
-        )}
+        {isLoading && <p className="label-mono text-forest/60">Loading inventory…</p>}
         {isError && (
           <div className="border-2 border-forest p-6 mb-8">
             <p className="label-mono text-safety mb-2">Connection problem</p>
@@ -85,13 +94,10 @@ function ShopPage() {
         )}
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
           {filtered?.map((p: Product) => (
-            <Link
-              key={p.id}
-              to="/products/$slug"
-              params={{ slug: p.slug }}
-              className="group"
-            >
-              <div className={`aspect-square ${tileBg(p.color)} border-2 border-forest mb-4 overflow-hidden`}>
+            <Link key={p.id} to="/products/$slug" params={{ slug: p.slug }} className="group">
+              <div
+                className={`aspect-square ${tileBg(p.color)} border-2 border-forest mb-4 overflow-hidden`}
+              >
                 <img
                   src={productImage(p)}
                   alt={p.name}
@@ -111,9 +117,7 @@ function ShopPage() {
                     {p.subtitle}
                   </p>
                 </div>
-                <span className="font-semibold tabular-nums">
-                  {formatPrice(p.price_cents)}
-                </span>
+                <span className="font-semibold tabular-nums">{formatPrice(p.price_cents)}</span>
               </div>
             </Link>
           ))}
