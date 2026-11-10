@@ -7,9 +7,11 @@ import { SiteLayout } from "@/components/SiteLayout";
 import { type Product, productImages_, formatPrice, tileBg } from "@/lib/products";
 import { addToCart } from "@/lib/cart-store";
 import { toast } from "sonner";
+import { isLawfulMerchandise } from "@/lib/security-policy";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/products/$slug")({
-  head: () => brandHead("Product Details — Walki Talkie", "Explore the Walki Talkie collection, view product images and add your selection to your cart."),
+  head: ({ params }) => brandHead("Apparel Details — Walki Talkie", "View verified non-controlled Walki Talkie apparel details and images.", `/products/${encodeURIComponent(params.slug)}`),
   component: ProductPage,
   notFoundComponent: () => (
     <SiteLayout>
@@ -58,6 +60,7 @@ function ProductPage() {
   }
 
   const handleAdd = () => {
+    if (!isLawfulMerchandise(product) || !product.in_stock) return;
     addToCart({
       product_id: product.id,
       slug: product.slug,
@@ -94,13 +97,15 @@ function ProductPage() {
           {images.length > 1 && (
             <div className="mt-6 flex gap-3 flex-wrap justify-center">
               {images.map((src, i) => (
-                <button
+                <Button variant="outline"
                   key={src}
+                  aria-label={`View product image ${i + 1}`}
+                  aria-pressed={i === activeIdx}
                   onClick={() => setActiveIdx(i)}
                   className={`w-16 h-16 border-2 overflow-hidden ${i === activeIdx ? "border-safety" : "border-forest"}`}
                 >
                   <img src={src} alt="" className="w-full h-full object-cover" />
-                </button>
+                </Button>
               ))}
             </div>
           )}
@@ -120,21 +125,19 @@ function ProductPage() {
             {product.description}
           </p>
           <div className="flex flex-col sm:flex-row gap-3 mb-10">
-            <button onClick={handleAdd} className="btn-outline flex-1">
+            <Button onClick={handleAdd} disabled={!product.in_stock || !isLawfulMerchandise(product)} className="btn-outline flex-1">
               Add to Cart
-            </button>
-            <button onClick={handleBuyNow} className="btn-forest flex-1">
-              Buy Now
-            </button>
+            </Button>
+            <Button disabled className="btn-forest flex-1">Purchasing paused</Button>
           </div>
           <div className="mt-auto pt-8 border-t border-forest/20 grid grid-cols-2 gap-6 label-mono text-forest/70">
             <div>
-              <p className="text-forest mb-1">Shipping</p>
-              <p>Free over 500,000 Ks</p>
+              <p className="text-forest mb-1">Purchasing</p>
+              <p>No payments accepted</p>
             </div>
             <div>
-              <p className="text-forest mb-1">Returns</p>
-              <p>30 days, unopened</p>
+              <p className="text-forest mb-1">Questions</p>
+              <Link to="/track" className="underline">Customer service</Link>
             </div>
           </div>
         </div>

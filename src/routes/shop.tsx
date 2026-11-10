@@ -5,6 +5,7 @@ import { z } from "zod";
 import { fetchProducts } from "@/lib/product-fetch";
 import { SiteLayout } from "@/components/SiteLayout";
 import { type Product, productImage, formatPrice, tileBg } from "@/lib/products";
+import { Button } from "@/components/ui/button";
 
 const search = z.object({
   category: z.enum(["Flower", "Streetwear", "Accessories"]).optional(),
@@ -13,10 +14,10 @@ const search = z.object({
 export const Route = createFileRoute("/shop")({
   component: ShopPage,
   validateSearch: (s) => search.parse(s),
-  head: () => brandHead("Shop — Walki Talkie", "Browse premium cannabis flower, streetwear apparel, and curated accessories from Walki Talkie.", "/shop"),
+  head: () => brandHead("Streetwear — Walki Talkie", "Explore the verified non-controlled Walki Talkie apparel collection.", "/shop"),
 });
 
-const CATEGORIES = ["All", "Flower", "Streetwear", "Accessories"] as const;
+const CATEGORIES = ["All", "Streetwear"] as const;
 
 function ShopPage() {
   const { category } = Route.useSearch();
@@ -48,8 +49,9 @@ function ShopPage() {
         {CATEGORIES.map((c) => {
           const active = c === "All" ? !category : c === category;
           return (
-            <button
+            <Button
               key={c}
+              aria-pressed={active}
               onClick={() =>
                 navigate({
                   search: c === "All" ? {} : { category: c },
@@ -60,7 +62,7 @@ function ShopPage() {
               }`}
             >
               {c}
-            </button>
+            </Button>
           );
         })}
       </section>
@@ -76,9 +78,9 @@ function ShopPage() {
               {(error as Error)?.message ??
                 "We couldn't reach the catalog. This can happen on a weak mobile data signal."}
             </p>
-            <button onClick={() => refetch()} className="btn-forest" disabled={isFetching}>
+            <Button onClick={() => refetch()} className="btn-forest" disabled={isFetching}>
               {isFetching ? "Retrying…" : "Retry"}
-            </button>
+            </Button>
           </div>
         )}
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
@@ -99,7 +101,7 @@ function ShopPage() {
                   className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
                 />
               </div>
-              <div className="flex justify-between items-start gap-2">
+              <div className="flex flex-col sm:flex-row justify-between items-start gap-2">
                 <div className="min-w-0">
                   <p className="label-mono text-forest/50 mb-1">{p.category}</p>
                   <h3 className="font-display text-lg md:text-xl uppercase mb-1 truncate">

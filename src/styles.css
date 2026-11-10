@@ -84,6 +84,7 @@
 
 @layer base {
   * {
+    letter-spacing: 0 !important;
     border-color: var(--color-border);
     /* Strict no-shadow rule */
     box-shadow: none !important;
@@ -100,6 +101,13 @@
   ::selection {
     background-color: var(--color-safety);
     color: var(--color-sand);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
   }
 }
 
