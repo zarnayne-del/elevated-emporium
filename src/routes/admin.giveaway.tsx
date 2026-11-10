@@ -13,6 +13,7 @@ import {
 } from "@/lib/admin.functions";
 import { safeCall } from "@/lib/server-call";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/admin/giveaway")({
   head: () => brandHead("Giveaway Management — Walki Talkie", "Manage Walki Talkie giveaway prizes, entries and winners.", "/admin/giveaway"),
@@ -70,7 +71,7 @@ function AdminGiveawayPage() {
   const [drawing, setDrawing] = useState(false);
   const month = currentMonthKey();
 
-  const { data } = useGiveawayData();
+  const { data, error, isLoading } = useGiveawayData();
   const entries = (data?.entries ?? []) as Entry[];
   const winners = (data?.winners ?? []) as Winner[];
 
@@ -104,6 +105,8 @@ function AdminGiveawayPage() {
         </h1>
       </header>
 
+      {isLoading && <p className="text-muted-foreground">Loading records…</p>}
+      {error && <p role="alert" className="text-destructive">Giveaway records could not load. Please sign in again or retry.</p>}
       <PrizeManager />
 
 
@@ -119,16 +122,15 @@ function AdminGiveawayPage() {
             Draw Winner for {month}
           </p>
           <p className="label-mono text-forest/60 mt-1">
-            Runs automatically on the last day of each month. You can also draw manually.
+            Draws and new order-linked entries are paused. Existing records are preserved.
           </p>
         </div>
-        <button
-          onClick={onDraw}
-          disabled={drawing || currentMonthEntries.length === 0}
+        <Button
+          disabled
           className="btn-forest disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {drawing ? "Drawing…" : "Draw Winner Now"}
-        </button>
+          Draws paused
+        </Button>
       </div>
 
       <div>
@@ -173,7 +175,7 @@ function AdminGiveawayPage() {
         <h2 className="font-display uppercase text-2xl tracking-tighter mb-4">All Entries</h2>
         {!entries || entries.length === 0 ? (
           <div className="border-2 border-forest p-8 text-center label-mono text-forest/60">
-            No entries yet — entries are created automatically for every order.
+            No saved entries. New entries are paused.
           </div>
         ) : (
           <div className="border-2 border-forest overflow-x-auto">
