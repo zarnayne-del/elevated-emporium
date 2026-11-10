@@ -13,9 +13,15 @@ import {
 } from "@/lib/admin.functions";
 import { safeCall } from "@/lib/server-call";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/admin/giveaway")({
-  head: () => brandHead("Giveaway Management — Walki Talkie", "Manage Walki Talkie giveaway prizes, entries and winners.", "/admin/giveaway"),
+  head: () =>
+    brandHead(
+      "Giveaway Management — Walki Talkie",
+      "Manage Walki Talkie giveaway prizes, entries and winners.",
+      "/admin/giveaway",
+    ),
   component: AdminGiveawayPage,
 });
 
@@ -30,7 +36,6 @@ type Prize = {
   created_at: string;
   updated_at: string;
 };
-
 
 type Entry = {
   id: string;
@@ -70,7 +75,7 @@ function AdminGiveawayPage() {
   const [drawing, setDrawing] = useState(false);
   const month = currentMonthKey();
 
-  const { data } = useGiveawayData();
+  const { data, error, isLoading } = useGiveawayData();
   const entries = (data?.entries ?? []) as Entry[];
   const winners = (data?.winners ?? []) as Winner[];
 
@@ -104,8 +109,13 @@ function AdminGiveawayPage() {
         </h1>
       </header>
 
+      {isLoading && <p className="text-muted-foreground">Loading records…</p>}
+      {error && (
+        <p role="alert" className="text-destructive">
+          Giveaway records could not load. Please sign in again or retry.
+        </p>
+      )}
       <PrizeManager />
-
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Stat label="Total Entries (All Time)" value={String(entries?.length ?? 0)} />
@@ -115,20 +125,14 @@ function AdminGiveawayPage() {
 
       <div className="border-2 border-forest p-6 flex flex-col md:flex-row md:items-center gap-4 justify-between">
         <div>
-          <p className="font-display uppercase text-lg tracking-tight">
-            Draw Winner for {month}
-          </p>
+          <p className="font-display uppercase text-lg tracking-tight">Draw Winner for {month}</p>
           <p className="label-mono text-forest/60 mt-1">
-            Runs automatically on the last day of each month. You can also draw manually.
+            Draws and new order-linked entries are paused. Existing records are preserved.
           </p>
         </div>
-        <button
-          onClick={onDraw}
-          disabled={drawing || currentMonthEntries.length === 0}
-          className="btn-forest disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {drawing ? "Drawing…" : "Draw Winner Now"}
-        </button>
+        <Button disabled className="btn-forest disabled:opacity-50 disabled:cursor-not-allowed">
+          Draws paused
+        </Button>
       </div>
 
       <div>
@@ -158,9 +162,7 @@ function AdminGiveawayPage() {
                     <td className="px-4 py-3 label-mono text-forest/60">
                       {new Date(w.drawn_at).toLocaleString()}
                     </td>
-                    <td className="px-4 py-3 label-mono">
-                      {w.drawn_manually ? "manual" : "auto"}
-                    </td>
+                    <td className="px-4 py-3 label-mono">{w.drawn_manually ? "manual" : "auto"}</td>
                   </tr>
                 ))}
               </tbody>
@@ -173,7 +175,7 @@ function AdminGiveawayPage() {
         <h2 className="font-display uppercase text-2xl tracking-tighter mb-4">All Entries</h2>
         {!entries || entries.length === 0 ? (
           <div className="border-2 border-forest p-8 text-center label-mono text-forest/60">
-            No entries yet — entries are created automatically for every order.
+            No saved entries. New entries are paused.
           </div>
         ) : (
           <div className="border-2 border-forest overflow-x-auto">
@@ -272,7 +274,14 @@ function PrizeManager() {
   const reset = () => {
     setEditing(null);
     setFile(null);
-    setForm({ title: "", description: "", prize_value: "", image_url: "", end_date: "", is_active: true });
+    setForm({
+      title: "",
+      description: "",
+      prize_value: "",
+      image_url: "",
+      end_date: "",
+      is_active: true,
+    });
   };
 
   const uploadImage = async (): Promise<string | null> => {
@@ -335,7 +344,9 @@ function PrizeManager() {
   return (
     <div className="border-2 border-forest">
       <div className="px-6 py-4 border-b-2 border-forest bg-forest text-sand flex justify-between items-center">
-        <h2 className="font-display uppercase text-xl tracking-tighter">Giveaway Prize Management</h2>
+        <h2 className="font-display uppercase text-xl tracking-tighter">
+          Giveaway Prize Management
+        </h2>
         {editing && (
           <button onClick={reset} className="label-mono hover:text-safety">
             + New Prize
@@ -384,7 +395,11 @@ function PrizeManager() {
             className="border-2 border-forest bg-sand px-3 py-2"
           />
           {form.image_url && !file && (
-            <img src={form.image_url} alt="" className="mt-2 h-24 w-24 object-cover border-2 border-forest" />
+            <img
+              src={form.image_url}
+              alt=""
+              className="mt-2 h-24 w-24 object-cover border-2 border-forest"
+            />
           )}
         </label>
         <label className="flex flex-col gap-1">
@@ -410,7 +425,9 @@ function PrizeManager() {
             {submitting ? "Saving…" : editing ? "Update Prize" : "Create Prize"}
           </button>
           {editing && (
-            <button type="button" onClick={reset} className="btn-outline">Cancel</button>
+            <button type="button" onClick={reset} className="btn-outline">
+              Cancel
+            </button>
           )}
         </div>
       </form>
@@ -435,7 +452,11 @@ function PrizeManager() {
                 <tr key={p.id}>
                   <td className="px-4 py-3">
                     {p.image_url ? (
-                      <img src={p.image_url} alt="" className="h-12 w-12 object-cover border border-forest" />
+                      <img
+                        src={p.image_url}
+                        alt=""
+                        className="h-12 w-12 object-cover border border-forest"
+                      />
                     ) : (
                       <span className="text-2xl">🎁</span>
                     )}

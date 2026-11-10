@@ -6,11 +6,17 @@ import { formatPrice } from "@/lib/products";
 import { adminListOrders, adminUpdateOrderStatus } from "@/lib/admin.functions";
 import { safeCall } from "@/lib/server-call";
 import { toast } from "sonner";
+import { ORDER_STATUSES, canTransitionOrderStatus, isOrderStatus } from "@/lib/order-status";
 
-const STATUS_OPTIONS = ["pending", "payment_verified", "shipped", "delivered"] as const;
+const STATUS_OPTIONS = ORDER_STATUSES;
 
 export const Route = createFileRoute("/admin/")({
-  head: () => brandHead("Orders Management — Walki Talkie", "Manage incoming Walki Talkie orders and payment verification.", "/admin"),
+  head: () =>
+    brandHead(
+      "Orders Management — Walki Talkie",
+      "Manage incoming Walki Talkie orders and payment verification.",
+      "/admin",
+    ),
   component: AdminOrdersPage,
 });
 
@@ -19,7 +25,7 @@ function AdminOrdersPage() {
   const listOrders = useServerFn(adminListOrders);
   const updateOrderStatus = useServerFn(adminUpdateOrderStatus);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ["admin", "orders"],
     queryFn: () => safeCall(() => listOrders()),
     retry: false,
@@ -48,6 +54,11 @@ function AdminOrdersPage() {
           Incoming Orders
         </h1>
       </header>
+      {error && (
+        <p role="alert" className="mb-6 text-destructive">
+          Orders could not load. Please sign in again or retry.
+        </p>
+      )}
 
       {isLoading ? (
         <p className="label-mono text-forest/60">Loading…</p>
@@ -74,7 +85,9 @@ function AdminOrdersPage() {
                   <td className="px-4 py-3 font-display tracking-wider">{o.order_number}</td>
                   <td className="px-4 py-3">
                     <div className="font-semibold">{o.shipping_name}</div>
-                    <div className="label-mono text-forest/60">{o.phone_number ?? o.email ?? "—"}</div>
+                    <div className="label-mono text-forest/60">
+                      {o.phone_number ?? o.email ?? "—"}
+                    </div>
                   </td>
                   <td className="px-4 py-3">
                     {o.shipping_city}, {o.shipping_country}
@@ -84,12 +97,16 @@ function AdminOrdersPage() {
                   </td>
                   <td className="px-4 py-3">
                     <select
-                      value={STATUS_OPTIONS.includes(o.status as typeof STATUS_OPTIONS[number]) ? o.status : "pending"}
+                      aria-label={`Status for ${o.order_number}`}
+                      value={o.status}
                       onChange={(e) => updateStatus(o.id, e.target.value)}
                       className="label-mono bg-sand border-2 border-forest px-2 py-1 focus:outline-none focus:bg-safety/10"
                     >
+                      {!isOrderStatus(o.status) && <option value={o.status}>{o.status}</option>}
                       {STATUS_OPTIONS.map((s) => (
-                        <option key={s} value={s}>{s.replace(/_/g, " ")}</option>
+                        <option key={s} value={s} disabled={!canTransitionOrderStatus(o.status, s)}>
+                          {s.replace(/_/g, " ")}
+                        </option>
                       ))}
                     </select>
                   </td>

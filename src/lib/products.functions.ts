@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import type { Product } from "@/lib/products";
+import { isLawfulMerchandise } from "@/lib/security-policy";
 
 export const PRODUCT_COLUMNS =
   "id,slug,name,category,subtitle,description,price_cents,color,in_stock,sort_order,image_url,image_path,image_urls";
@@ -36,5 +37,5 @@ export const listProducts = createServerFn({ method: "POST" })
       throw new Error("Could not load inventory.");
     }
 
-    return (rows ?? []) as unknown as Product[];
+    return ((rows ?? []) as unknown as Product[]).filter(isLawfulMerchandise);
   });

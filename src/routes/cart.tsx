@@ -7,7 +7,12 @@ import { formatPrice, productImages } from "@/lib/products";
 
 export const Route = createFileRoute("/cart")({
   component: CartPage,
-  head: () => brandHead("Cart — Walki Talkie", "Review your Walki Talkie items and order subtotal before checkout.", "/cart"),
+  head: () =>
+    brandHead(
+      "Cart — Walki Talkie",
+      "Review your Walki Talkie items and order subtotal before checkout.",
+      "/cart",
+    ),
 });
 
 function CartPage() {
@@ -24,7 +29,10 @@ function CartPage() {
             Cart ({count})
           </h1>
         </div>
-        <Link to="/shop" className="label-mono hidden md:inline border-b-2 border-forest pb-1 hover:text-safety hover:border-safety">
+        <Link
+          to="/shop"
+          className="label-mono hidden md:inline border-b-2 border-forest pb-1 hover:text-safety hover:border-safety"
+        >
           Continue Shopping →
         </Link>
       </section>
@@ -32,7 +40,9 @@ function CartPage() {
       {items.length === 0 ? (
         <div className="px-8 py-32 text-center">
           <p className="label-mono text-forest/60 mb-6">Your cart is empty.</p>
-          <Link to="/shop" className="btn-forest">Browse the Catalog</Link>
+          <Link to="/shop" className="btn-forest">
+            Browse the Catalog
+          </Link>
         </div>
       ) : (
         <section className="grid grid-cols-1 lg:grid-cols-3 border-b-2 border-forest">
@@ -40,23 +50,16 @@ function CartPage() {
             {items.map((it) => (
               <div key={it.product_id} className="flex gap-6 p-6 md:p-8">
                 <div className="w-24 h-24 md:w-32 md:h-32 border-2 border-forest bg-sand shrink-0 overflow-hidden">
-                  <img
-                    src={productImages[it.slug]}
-                    alt={it.name}
-                    loading="lazy"
-                    className="w-full h-full object-cover"
-                  />
+                  <span className="flex size-full items-center justify-center label-mono">
+                    Saved item
+                  </span>
                 </div>
                 <div className="flex-1 min-w-0 flex flex-col justify-between">
                   <div className="flex justify-between gap-3">
                     <div>
-                      <Link
-                        to="/products/$slug"
-                        params={{ slug: it.slug }}
-                        className="font-display text-lg md:text-xl uppercase hover:text-safety"
-                      >
+                      <span className="font-display text-lg md:text-xl uppercase hover:text-safety">
                         {it.name}
-                      </Link>
+                      </span>
                       <p className="label-mono text-forest/60 mt-1">
                         {formatPrice(it.unit_price_cents)} each
                       </p>
@@ -78,7 +81,7 @@ function CartPage() {
                         {it.quantity}
                       </span>
                       <button
-                        onClick={() => setQuantity(it.product_id, it.quantity + 1)}
+                        disabled
                         className="px-3 py-1 hover:bg-forest hover:text-sand transition-colors"
                         aria-label="Increase"
                       >
@@ -106,7 +109,7 @@ function CartPage() {
               </div>
               <div className="flex justify-between text-sm">
                 <span className="uppercase tracking-wider text-sand/70">Packing Fees</span>
-                <span className="tabular-nums text-sand/60">Calculated at checkout</span>
+                <span className="tabular-nums text-sand/60">Not applied</span>
               </div>
               <div className="border-t border-sand/20 pt-4 flex justify-between font-display text-2xl uppercase">
                 <span>Total</span>
@@ -117,10 +120,10 @@ function CartPage() {
               to="/checkout"
               className="block w-full text-center py-5 bg-sand text-forest font-display uppercase tracking-[0.2em] text-xs hover:bg-safety hover:text-sand transition-colors"
             >
-              Secure Checkout →
+              Purchasing paused
             </Link>
             <p className="label-mono text-sand/40 mt-6 text-center">
-              Free shipping within Yangon
+              No payments or receipt uploads accepted
             </p>
           </aside>
         </section>

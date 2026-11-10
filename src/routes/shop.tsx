@@ -5,6 +5,7 @@ import { z } from "zod";
 import { fetchProducts } from "@/lib/product-fetch";
 import { SiteLayout } from "@/components/SiteLayout";
 import { type Product, productImage, formatPrice, tileBg } from "@/lib/products";
+import { Button } from "@/components/ui/button";
 
 const search = z.object({
   category: z.enum(["Flower", "Streetwear", "Accessories"]).optional(),
@@ -13,16 +14,28 @@ const search = z.object({
 export const Route = createFileRoute("/shop")({
   component: ShopPage,
   validateSearch: (s) => search.parse(s),
-  head: () => brandHead("Shop — Walki Talkie", "Browse premium cannabis flower, streetwear apparel, and curated accessories from Walki Talkie.", "/shop"),
+  head: () =>
+    brandHead(
+      "Streetwear — Walki Talkie",
+      "Explore the verified non-controlled Walki Talkie apparel collection.",
+      "/shop",
+    ),
 });
 
-const CATEGORIES = ["All", "Flower", "Streetwear", "Accessories"] as const;
+const CATEGORIES = ["All", "Streetwear"] as const;
 
 function ShopPage() {
   const { category } = Route.useSearch();
   const navigate = Route.useNavigate();
 
-  const { data: products, isLoading, isError, error, refetch, isFetching } = useQuery({
+  const {
+    data: products,
+    isLoading,
+    isError,
+    error,
+    refetch,
+    isFetching,
+  } = useQuery({
     queryKey: ["products", "all"],
     queryFn: () => fetchProducts(),
     retry: 3,
@@ -30,10 +43,7 @@ function ShopPage() {
     staleTime: 60_000,
   });
 
-
-  const filtered = category
-    ? products?.filter((p: Product) => p.category === category)
-    : products;
+  const filtered = category ? products?.filter((p: Product) => p.category === category) : products;
 
   return (
     <SiteLayout>
@@ -48,27 +58,28 @@ function ShopPage() {
         {CATEGORIES.map((c) => {
           const active = c === "All" ? !category : c === category;
           return (
-            <button
+            <Button
               key={c}
+              aria-pressed={active}
               onClick={() =>
                 navigate({
                   search: c === "All" ? {} : { category: c },
                 })
               }
               className={`px-5 py-2 border-2 border-forest font-display uppercase text-[11px] tracking-[0.2em] transition-colors cursor-pointer ${
-                active ? "bg-forest text-sand" : "bg-sand text-forest hover:bg-forest hover:text-sand"
+                active
+                  ? "bg-forest text-sand"
+                  : "bg-sand text-forest hover:bg-forest hover:text-sand"
               }`}
             >
               {c}
-            </button>
+            </Button>
           );
         })}
       </section>
 
       <section className="px-6 md:px-8 py-12 md:py-16">
-        {isLoading && (
-          <p className="label-mono text-forest/60">Loading inventory…</p>
-        )}
+        {isLoading && <p className="label-mono text-forest/60">Loading inventory…</p>}
         {isError && (
           <div className="border-2 border-forest p-6 mb-8">
             <p className="label-mono text-safety mb-2">Connection problem</p>
@@ -76,20 +87,17 @@ function ShopPage() {
               {(error as Error)?.message ??
                 "We couldn't reach the catalog. This can happen on a weak mobile data signal."}
             </p>
-            <button onClick={() => refetch()} className="btn-forest" disabled={isFetching}>
+            <Button onClick={() => refetch()} className="btn-forest" disabled={isFetching}>
               {isFetching ? "Retrying…" : "Retry"}
-            </button>
+            </Button>
           </div>
         )}
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
           {filtered?.map((p: Product) => (
-            <Link
-              key={p.id}
-              to="/products/$slug"
-              params={{ slug: p.slug }}
-              className="group"
-            >
-              <div className={`aspect-square ${tileBg(p.color)} border-2 border-forest mb-4 overflow-hidden`}>
+            <Link key={p.id} to="/products/$slug" params={{ slug: p.slug }} className="group">
+              <div
+                className={`aspect-square ${tileBg(p.color)} border-2 border-forest mb-4 overflow-hidden`}
+              >
                 <img
                   src={productImage(p)}
                   alt={p.name}
@@ -99,7 +107,7 @@ function ShopPage() {
                   className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
                 />
               </div>
-              <div className="flex justify-between items-start gap-2">
+              <div className="flex flex-col sm:flex-row justify-between items-start gap-2">
                 <div className="min-w-0">
                   <p className="label-mono text-forest/50 mb-1">{p.category}</p>
                   <h3 className="font-display text-lg md:text-xl uppercase mb-1 truncate">
@@ -109,9 +117,7 @@ function ShopPage() {
                     {p.subtitle}
                   </p>
                 </div>
-                <span className="font-semibold tabular-nums">
-                  {formatPrice(p.price_cents)}
-                </span>
+                <span className="font-semibold tabular-nums">{formatPrice(p.price_cents)}</span>
               </div>
             </Link>
           ))}

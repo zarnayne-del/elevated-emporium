@@ -1,10 +1,18 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { assertAdmin, receiptPath, validateImage, isLawfulMerchandise } from "@/lib/security-policy";
+import {
+  assertAdmin,
+  receiptPath,
+  validateImage,
+  isLawfulMerchandise,
+} from "@/lib/security-policy";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/integrations/supabase/types";
+import { ORDER_STATUSES, canTransitionOrderStatus } from "@/lib/order-status";
 
 type AuthedContext = {
-  supabase: { from: (t: string) => any };
+  supabase: SupabaseClient<Database>;
   userId: string;
 };
 
@@ -42,7 +50,7 @@ export const adminListOrders = createServerFn({ method: "GET" })
     const { data, error } = await admin
       .from("orders")
       .select(
-        "id, order_number, email, phone_number, shipping_name, shipping_city, shipping_country, total_cents, status, payment_screenshot_url, created_at, notified_at"
+        "id, order_number, email, phone_number, shipping_name, shipping_city, shipping_country, total_cents, status, payment_screenshot_url, created_at, notified_at",
       )
       .order("created_at", { ascending: false })
       .limit(500);
@@ -60,9 +68,14 @@ export const adminListOrders = createServerFn({ method: "GET" })
         }
         const { payment_screenshot_url: _drop, ...rest } = o;
         return { ...rest, receipt_url };
-      })
+      }),
     );
-    return { orders, notificationConfigured: Boolean(process.env["TELEGRAM_BOT_TOKEN"] && process.env["TELEGRAM_CHAT_ID"]) };
+    return {
+      orders,
+      notificationConfigured: Boolean(
+        process.env["TELEGRAM_BOT_TOKEN"] && process.env["TELEGRAM_CHAT_ID"],
+      ),
+    };
   });
 
 export const adminUpdateOrderStatus = createServerFn({ method: "POST" })
@@ -71,26 +84,52 @@ export const adminUpdateOrderStatus = createServerFn({ method: "POST" })
     z
       .object({
         id: z.string().uuid(),
-        status: z.enum(["pending", "payment_verified", "shipped", "delivered"]),
+        status: z.enum(ORDER_STATUSES),
       })
-      .parse(input)
+      .parse(input),
   )
   .handler(async ({ context, data }) => {
     const admin = await requireAdmin(context as unknown as AuthedContext);
-    const { data: order, error: lookupError } = await admin.from("orders")
-      .select("id").eq("id", data.id).maybeSingle();
-    const { data: items, error: itemsError } = await admin.from("order_items")
-      .select("product_id").eq("order_id", data.id);
-    const { data: merchandise, error: productError } = await admin.from("products")
-      .select("id,category,name,slug,description").in("id", (items ?? []).map(item => item.product_id));
-    if (lookupError || itemsError || productError || !order || !items?.length ||
-        items.some(item => !merchandise?.some(product => product.id === item.product_id && isLawfulMerchandise(product)))) {
+    const { data: order, error: lookupError } = await admin
+      .from("orders")
+      .select("id,status")
+      .eq("id", data.id)
+      .maybeSingle();
+    const { data: items, error: itemsError } = await admin
+      .from("order_items")
+      .select("product_id")
+      .eq("order_id", data.id);
+    const { data: merchandise, error: productError } = await admin
+      .from("products")
+      .select("id,category,name,slug,description")
+      .in(
+        "id",
+        (items ?? []).map((item) => item.product_id),
+      );
+    if (
+      lookupError ||
+      itemsError ||
+      productError ||
+      !order ||
+      !items?.length ||
+      items.some(
+        (item) =>
+          !merchandise?.some(
+            (product) => product.id === item.product_id && isLawfulMerchandise(product),
+          ),
+      )
+    ) {
       throw new Error("Status changes are paused for controlled or unverified merchandise orders.");
+    }
+    if (!canTransitionOrderStatus(order.status, data.status)) {
+      throw new Error("Order status must advance one stage at a time.");
     }
     const { error } = await admin
       .from("orders")
       .update({ status: data.status })
-      .eq("id", data.id);
+      .eq("id", data.id)
+      .eq("status", order.status)
+      .select("id");
     if (error) throw new Error("Could not update order status");
     return { ok: true as const };
   });
@@ -148,9 +187,7 @@ export const adminCreateProduct = createServerFn({ method: "POST" })
 
 export const adminUpdateProduct = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) =>
-    ProductInput.extend({ id: z.string().uuid() }).parse(input)
-  )
+  .inputValidator((input) => ProductInput.extend({ id: z.string().uuid() }).parse(input))
   .handler(async ({ context, data }) => {
     const admin = await requireAdmin(context as unknown as AuthedContext);
     const { error } = await admin
@@ -201,7 +238,11 @@ export const adminUploadImage = createServerFn({ method: "POST" })
     if (error) throw new Error("Could not upload image");
     const { data: pub } = admin.storage.from("product-images").getPublicUrl(path);
     const browserBase = process.env["VITE_SUPABASE_URL"];
-    return { url: browserBase ? `${browserBase}/storage/v1/object/public/product-images/${path}` : pub.publicUrl };
+    return {
+      url: browserBase
+        ? `${browserBase}/storage/v1/object/public/product-images/${path}`
+        : pub.publicUrl,
+    };
   });
 
 /* --------------------------------- giveaway -------------------------------- */
@@ -240,9 +281,21 @@ export const adminGiveawayData = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const admin = await requireAdmin(context as unknown as AuthedContext);
     const [entries, winners, prizes] = await Promise.all([
-      admin.from("giveaway_entries" as never).select("*").order("created_at", { ascending: false }).limit(1000),
-      admin.from("giveaway_winners" as never).select("*").order("drawn_at", { ascending: false }).limit(200),
-      admin.from("giveaway_prizes" as never).select("*").order("created_at", { ascending: false }).limit(100),
+      admin
+        .from("giveaway_entries" as never)
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(1000),
+      admin
+        .from("giveaway_winners" as never)
+        .select("*")
+        .order("drawn_at", { ascending: false })
+        .limit(200),
+      admin
+        .from("giveaway_prizes" as never)
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(100),
     ]);
     if (entries.error || winners.error || prizes.error) {
       throw new Error("Could not load giveaway data");
@@ -278,7 +331,10 @@ export const adminSavePrize = createServerFn({ method: "POST" })
       is_active: data.is_active,
     };
     const query = data.id
-      ? admin.from("giveaway_prizes" as never).update(payload as never).eq("id", data.id)
+      ? admin
+          .from("giveaway_prizes" as never)
+          .update(payload as never)
+          .eq("id", data.id)
       : admin.from("giveaway_prizes" as never).insert(payload as never);
     const { error } = await query;
     if (error) throw new Error("Could not save prize");

@@ -37,9 +37,9 @@
   --color-safety: var(--safety);
   --color-ink: var(--ink);
 
-  --font-display: 'Space Grotesk', sans-serif;
-  --font-sans: 'Inter', sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --font-display: "Space Grotesk", sans-serif;
+  --font-sans: "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
 }
 
 :root {
@@ -84,13 +84,15 @@
 
 @layer base {
   * {
+    letter-spacing: 0 !important;
     border-color: var(--color-border);
     /* Strict no-shadow rule */
     box-shadow: none !important;
     text-shadow: none !important;
   }
 
-  html, body {
+  html,
+  body {
     background-color: var(--color-sand);
     color: var(--color-forest);
     font-family: var(--font-sans);
@@ -100,6 +102,15 @@
   ::selection {
     background-color: var(--color-safety);
     color: var(--color-sand);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
   }
 }
 
