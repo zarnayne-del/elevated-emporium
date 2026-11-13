@@ -56,8 +56,12 @@ function AdminLayout() {
             Sign in with an approved staff account to manage the store.
           </p>
           <div className="flex flex-wrap gap-3 justify-center">
-            <Link to="/auth" className="btn-forest">Sign In</Link>
-            <Link to="/" className="label-mono self-center hover:text-safety">← Back to site</Link>
+            <Link to="/auth" className="btn-forest">
+              Sign In
+            </Link>
+            <Link to="/" className="label-mono self-center hover:text-safety">
+              ← Back to site
+            </Link>
           </div>
         </div>
       </div>
@@ -79,11 +83,18 @@ function AdminLayout() {
           <span className="label-mono bg-forest text-sand px-2 py-1">ADMIN</span>
         </div>
         <div className="flex items-center gap-4">
-          <button onClick={signOut} className="label-mono hover:text-safety">Sign out</button>
-          <Link to="/" className="label-mono hover:text-safety">← Back to site</Link>
+          <button onClick={signOut} className="label-mono hover:text-safety">
+            Sign out
+          </button>
+          <Link to="/" className="label-mono hover:text-safety">
+            ← Back to site
+          </Link>
         </div>
       </header>
-      <nav aria-label="Staff navigation" className="border-b-2 border-forest px-3 md:px-8 flex flex-wrap gap-2">
+      <nav
+        aria-label="Staff navigation"
+        className="border-b-2 border-forest px-3 md:px-8 flex flex-wrap gap-2"
+      >
         {tabs.map((t) => {
           const active = t.exact ? pathname === t.to : pathname.startsWith(t.to);
           return (
