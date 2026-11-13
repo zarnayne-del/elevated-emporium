@@ -3,7 +3,13 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { formatPrice, type Product, productImage, productImages_, USD_TO_MMK } from "@/lib/products";
+import {
+  formatPrice,
+  type Product,
+  productImage,
+  productImages_,
+  USD_TO_MMK,
+} from "@/lib/products";
 import {
   adminCreateProduct,
   adminDeleteProduct,
@@ -15,7 +21,12 @@ import { safeCall } from "@/lib/server-call";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/products")({
-  head: () => brandHead("Products Management — Walki Talkie", "Manage the Walki Talkie product catalog and images.", "/admin/products"),
+  head: () =>
+    brandHead(
+      "Products Management — Walki Talkie",
+      "Manage the Walki Talkie product catalog and images.",
+      "/admin/products",
+    ),
   component: AdminProductsPage,
 });
 
@@ -231,18 +242,13 @@ function AdminProductsPage() {
                 >
                   Edit
                 </button>
-                <button
-                  onClick={() => onDelete(p.id)}
-                  className="label-mono hover:text-safety"
-                >
+                <button onClick={() => onDelete(p.id)} className="label-mono hover:text-safety">
                   Delete
                 </button>
               </li>
             ))}
             {products?.length === 0 && (
-              <li className="p-6 text-center label-mono text-forest/60">
-                No products yet.
-              </li>
+              <li className="p-6 text-center label-mono text-forest/60">No products yet.</li>
             )}
           </ul>
         )}
@@ -259,9 +265,7 @@ function AdminProductsPage() {
             className="bg-sand border-2 border-forest w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 space-y-5"
           >
             <div className="flex items-center justify-between">
-              <h3 className="font-display text-2xl uppercase tracking-tighter">
-                Edit Product
-              </h3>
+              <h3 className="font-display text-2xl uppercase tracking-tighter">Edit Product</h3>
               <button
                 type="button"
                 onClick={() => setEditing(null)}
@@ -317,9 +321,7 @@ function AdminProductsPage() {
                       <img src={url} alt="" className="w-full h-full object-cover" />
                       <button
                         type="button"
-                        onClick={() =>
-                          setEditExistingUrls((prev) => prev.filter((u) => u !== url))
-                        }
+                        onClick={() => setEditExistingUrls((prev) => prev.filter((u) => u !== url))}
                         className="absolute -top-2 -right-2 bg-safety text-forest w-6 h-6 label-mono border-2 border-forest"
                       >
                         ✕

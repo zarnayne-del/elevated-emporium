@@ -13,20 +13,21 @@ import { AgeGate } from "@/components/AgeGate";
 import { Toaster } from "@/components/ui/sonner";
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
 
 function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-sand px-4">
       <div className="max-w-md text-center">
         <p className="label-mono text-safety mb-4">Error 404</p>
-        <h1 className="font-display text-7xl uppercase tracking-tighter text-forest">
-          Off-Grid
-        </h1>
+        <h1 className="font-display text-7xl uppercase tracking-tighter text-forest">Off-Grid</h1>
         <p className="mt-4 text-sm text-forest/70">
           The page you're looking for doesn't exist or has been archived.
         </p>
         <div className="mt-8">
-          <Link to="/" className="btn-forest">Return Home</Link>
+          <Link to="/" className="btn-forest">
+            Return Home
+          </Link>
         </div>
       </div>
     </div>
@@ -34,7 +35,6 @@ function NotFoundComponent() {
 }
 
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
-  console.error(error);
   const router = useRouter();
 
   return (
@@ -48,7 +48,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
           Something went wrong on our end. Try again or head home.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <button
+          <Button
             onClick={() => {
               router.invalidate();
               reset();
@@ -56,8 +56,10 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
             className="btn-forest"
           >
             Try again
-          </button>
-          <a href="/" className="btn-outline">Go home</a>
+          </Button>
+          <a href="/" className="btn-outline">
+            Go home
+          </a>
         </div>
       </div>
     </div>
@@ -107,7 +109,7 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
   useEffect(() => {
-    const { data } = supabase.auth.onAuthStateChange(event => {
+    const { data } = supabase.auth.onAuthStateChange((event) => {
       if (!["SIGNED_IN", "SIGNED_OUT", "USER_UPDATED"].includes(event)) return;
       queryClient.removeQueries({ queryKey: ["admin"] });
       void router.invalidate();

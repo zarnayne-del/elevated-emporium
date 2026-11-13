@@ -11,9 +11,10 @@ export async function sendTelegramOrderMessage(
   try {
     // Telegram limits text to 4096 characters. Leave room for a truncation marker.
     const characters = Array.from(text);
-    const message = characters.length > 4000
-      ? `${characters.slice(0, 4000).join("")}\n… (order details truncated)`
-      : text;
+    const message =
+      characters.length > 4000
+        ? `${characters.slice(0, 4000).join("")}\n… (order details truncated)`
+        : text;
     const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -21,9 +22,8 @@ export async function sendTelegramOrderMessage(
       signal: AbortSignal.timeout(10_000),
     });
     const payload: unknown = await response.json().catch(() => null);
-    const fields = payload && typeof payload === "object"
-      ? payload as Record<string, unknown>
-      : null;
+    const fields =
+      payload && typeof payload === "object" ? (payload as Record<string, unknown>) : null;
     if (!response.ok || fields?.ok !== true) {
       return {
         sent: false,
@@ -33,8 +33,11 @@ export async function sendTelegramOrderMessage(
       };
     }
     const result = fields.result;
-    if (!result || typeof result !== "object" ||
-        typeof (result as Record<string, unknown>).message_id !== "number") {
+    if (
+      !result ||
+      typeof result !== "object" ||
+      typeof (result as Record<string, unknown>).message_id !== "number"
+    ) {
       return { sent: false, reason: "invalid-telegram-response", status: response.status };
     }
     return { sent: true };

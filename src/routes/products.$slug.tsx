@@ -1,5 +1,5 @@
 import { brandHead } from "@/lib/brand-head";
-import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { fetchProducts } from "@/lib/product-fetch";
@@ -32,7 +32,6 @@ export const Route = createFileRoute("/products/$slug")({
 
 function ProductPage() {
   const { slug } = Route.useParams();
-  const navigate = useNavigate();
   const [activeIdx, setActiveIdx] = useState(0);
 
   const {
@@ -81,11 +80,6 @@ function ProductPage() {
       unit_price_cents: product.price_cents,
     });
     toast.success(`${product.name} added to cart`);
-  };
-
-  const handleBuyNow = () => {
-    handleAdd();
-    navigate({ to: "/checkout" });
   };
 
   const images = productImages_(product);
