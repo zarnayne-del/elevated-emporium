@@ -32,10 +32,8 @@ export type Product = {
 
 // USD cents → MMK display. 1 USD ≈ 3500 MMK (adjust as needed).
 export const USD_TO_MMK = 3500;
-export const centsToMmk = (cents: number) =>
-  Math.round(((cents ?? 0) / 100) * USD_TO_MMK);
-export const mmkToCents = (mmk: number) =>
-  Math.round(((mmk ?? 0) * 100) / USD_TO_MMK);
+export const centsToMmk = (cents: number) => Math.round(((cents ?? 0) / 100) * USD_TO_MMK);
+export const mmkToCents = (mmk: number) => Math.round(((mmk ?? 0) * 100) / USD_TO_MMK);
 export const formatMmk = (mmk: number) =>
   `${Math.max(0, Math.round(mmk ?? 0)).toLocaleString("en-US")} Ks`;
 export const formatPrice = (cents: number) => formatMmk(centsToMmk(cents));
@@ -93,22 +91,29 @@ export const proxiedImage = (url: string): string => {
   return m ? `/api/public/img/${m[1]}` : url;
 };
 
-export const productImages_ = (p: Pick<Product, "slug" | "image_url" | "image_path" | "image_urls">): string[] => {
+export const productImages_ = (
+  p: Pick<Product, "slug" | "image_url" | "image_path" | "image_urls">,
+): string[] => {
   const arr = (p.image_urls ?? []).filter(Boolean);
   if (arr.length) return arr.map(proxiedImage);
   const single = p.image_url || p.image_path || productImages[p.slug];
   return single ? [proxiedImage(single)] : [];
 };
 
-export const productImage = (p: Pick<Product, "slug" | "image_url" | "image_path" | "image_urls">) =>
-  productImages_(p)[0] ?? "";
+export const productImage = (
+  p: Pick<Product, "slug" | "image_url" | "image_path" | "image_urls">,
+) => productImages_(p)[0] ?? "";
 
 export const tileBg = (color: string) => {
   switch (color) {
-    case "forest": return "bg-forest";
-    case "moss": return "bg-moss";
-    case "safety": return "bg-safety";
+    case "forest":
+      return "bg-forest";
+    case "moss":
+      return "bg-moss";
+    case "safety":
+      return "bg-safety";
     case "sand":
-    default: return "bg-sand";
+    default:
+      return "bg-sand";
   }
 };

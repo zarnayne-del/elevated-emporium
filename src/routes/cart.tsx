@@ -17,8 +17,13 @@ function CartPage() {
     <SiteLayout>
       <section className="max-w-3xl px-6 md:px-8 py-12 md:py-16 space-y-6">
         <h1 className="font-display text-4xl uppercase">Purchasing paused</h1>
-        <p className="leading-relaxed">Saved items cannot be purchased. No payments, receipt uploads or order submissions are accepted. Existing records remain unchanged.</p>
-        <Link to="/shop" className="btn-outline">Apparel Catalog</Link>
+        <p className="leading-relaxed">
+          Saved items cannot be purchased. No payments, receipt uploads or order submissions are
+          accepted. Existing records remain unchanged.
+        </p>
+        <Link to="/shop" className="btn-outline">
+          Apparel Catalog
+        </Link>
       </section>
     </SiteLayout>
   );

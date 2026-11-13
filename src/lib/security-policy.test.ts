@@ -20,13 +20,16 @@ test("receipt paths reject traversal and public query-string links", () => {
 });
 
 test("a signed-in account without an admin role is denied", async () => {
+  let roleWrites = 0;
   const query = {
     select: () => query,
     eq: () => query,
     maybeSingle: async () => ({ data: null, error: null }),
+    insert: () => { roleWrites += 1; throw new Error("Unexpected role write"); },
   };
   const supabase = { from: () => query } as unknown as SupabaseClient<Database>;
   await expect(assertAdmin({ supabase, userId: "test-user" })).rejects.toThrow(
     "Staff authorization required.",
   );
+  expect(roleWrites).toBe(0);
 });

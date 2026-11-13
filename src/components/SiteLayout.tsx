@@ -65,7 +65,13 @@ export function SiteHeader() {
         </Button>
       </div>
       {open && (
-        <div id="mobile-navigation" onKeyDown={(event) => { if (event.key === "Escape") setOpen(false); }} className="md:hidden absolute top-full left-0 right-0 bg-sand border-b-2 border-forest flex flex-col gap-5 px-6 py-6 uppercase text-xs font-semibold tracking-[0.25em]">
+        <div
+          id="mobile-navigation"
+          onKeyDown={(event) => {
+            if (event.key === "Escape") setOpen(false);
+          }}
+          className="md:hidden absolute top-full left-0 right-0 bg-sand border-b-2 border-forest flex flex-col gap-5 px-6 py-6 uppercase text-xs font-semibold tracking-[0.25em]"
+        >
           {navLinks}
         </div>
       )}
@@ -82,8 +88,12 @@ export function SiteFooter() {
         © {new Date().getFullYear()} Walki Talkie / All Rights Reserved
       </div>
       <div className="flex flex-wrap justify-center gap-6 label-mono items-center">
-        <Link to="/privacy" className="hover:underline">Privacy</Link>
-        <Link to="/terms" className="hover:underline">Terms</Link>
+        <Link to="/privacy" className="hover:underline">
+          Privacy
+        </Link>
+        <Link to="/terms" className="hover:underline">
+          Terms
+        </Link>
         <Link to="/track" className="hover:text-safety">
           Order Assistance
         </Link>
@@ -120,9 +130,13 @@ function FloatingSupport() {
 export function SiteLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen flex flex-col bg-sand text-forest">
-      <a href="#main-content" className="skip-link btn-forest">Skip to content</a>
+      <a href="#main-content" className="skip-link btn-forest">
+        Skip to content
+      </a>
       <SiteHeader />
-      <main id="main-content" tabIndex={-1} className="flex-1">{children}</main>
+      <main id="main-content" tabIndex={-1} className="flex-1">
+        {children}
+      </main>
       <SiteFooter />
       <FloatingSupport />
     </div>

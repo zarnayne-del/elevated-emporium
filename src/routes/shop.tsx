@@ -79,7 +79,11 @@ function ShopPage() {
       </section>
 
       <section className="px-6 md:px-8 py-12 md:py-16">
-        {isLoading && <p role="status" className="label-mono text-muted-foreground">Loading inventory…</p>}
+        {isLoading && (
+          <p role="status" className="label-mono text-muted-foreground">
+            Loading inventory…
+          </p>
+        )}
         {isError && (
           <div role="alert" className="border-2 border-forest p-6 mb-8">
             <p className="label-mono text-safety mb-2">Connection problem</p>
@@ -123,7 +127,9 @@ function ShopPage() {
           ))}
         </div>
         {filtered && filtered.length === 0 && (
-          <p role="status" className="text-sm text-muted-foreground">No apparel is currently available in this category. Purchasing remains paused.</p>
+          <p role="status" className="text-sm text-muted-foreground">
+            No apparel is currently available in this category. Purchasing remains paused.
+          </p>
         )}
       </section>
     </SiteLayout>

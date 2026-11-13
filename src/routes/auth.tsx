@@ -7,7 +7,12 @@ import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/auth")({
   component: AuthPage,
-  head: () => brandHead("Staff Sign In — Walki Talkie", "Sign in to the Walki Talkie staff area to manage orders, products and the monthly giveaway.", "/auth"),
+  head: () =>
+    brandHead(
+      "Staff Sign In — Walki Talkie",
+      "Sign in to the Walki Talkie staff area to manage orders, products and the monthly giveaway.",
+      "/auth",
+    ),
 });
 
 function AuthPage() {
@@ -37,7 +42,11 @@ function AuthPage() {
         toast.success("Account created. Ask the owner to grant you admin access.");
       }
     } catch (err) {
-      setFormError(mode === "signin" ? "Unable to sign in. Check your details and try again." : "Unable to create an account. Please try again later.");
+      setFormError(
+        mode === "signin"
+          ? "Unable to sign in. Check your details and try again."
+          : "Unable to create an account. Please try again later.",
+      );
     } finally {
       setBusy(false);
     }
@@ -45,7 +54,11 @@ function AuthPage() {
 
   return (
     <main className="min-h-screen bg-sand text-forest flex items-center justify-center p-6">
-      <form onSubmit={onSubmit} aria-busy={busy} className="w-full max-w-md border-2 border-forest p-6 md:p-8 space-y-5">
+      <form
+        onSubmit={onSubmit}
+        aria-busy={busy}
+        className="w-full max-w-md border-2 border-forest p-6 md:p-8 space-y-5"
+      >
         <div>
           <p className="label-mono text-safety mb-2">Staff Area</p>
           <h1 className="font-display text-3xl uppercase tracking-tighter">
@@ -77,13 +90,26 @@ function AuthPage() {
             className="w-full bg-sand border-2 border-forest px-4 py-3 text-sm"
           />
         </label>
-        {formError && <p role="alert" className="text-sm text-destructive">{formError}</p>}
-        <Button type="submit" disabled={busy} className="btn-forest w-full min-h-11 disabled:opacity-60">
+        {formError && (
+          <p role="alert" className="text-sm text-destructive">
+            {formError}
+          </p>
+        )}
+        <Button
+          type="submit"
+          disabled={busy}
+          className="btn-forest w-full min-h-11 disabled:opacity-60"
+        >
           {busy ? "Please wait…" : mode === "signin" ? "Sign In" : "Sign Up"}
         </Button>
-        <Button variant="ghost" disabled={busy}
+        <Button
+          variant="ghost"
+          disabled={busy}
           type="button"
-          onClick={() => { setMode(mode === "signin" ? "signup" : "signin"); setFormError(""); }}
+          onClick={() => {
+            setMode(mode === "signin" ? "signup" : "signin");
+            setFormError("");
+          }}
           className="label-mono w-full min-h-11 whitespace-normal text-muted-foreground hover:text-safety-text"
         >
           {mode === "signin" ? "Need an account? Sign up" : "Already have an account? Sign in"}

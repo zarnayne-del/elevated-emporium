@@ -20,14 +20,14 @@ function NotFoundComponent() {
     <div className="flex min-h-screen items-center justify-center bg-sand px-4">
       <div className="max-w-md text-center">
         <p className="label-mono text-safety mb-4">Error 404</p>
-        <h1 className="font-display text-7xl uppercase tracking-tighter text-forest">
-          Off-Grid
-        </h1>
+        <h1 className="font-display text-7xl uppercase tracking-tighter text-forest">Off-Grid</h1>
         <p className="mt-4 text-sm text-forest/70">
           The page you're looking for doesn't exist or has been archived.
         </p>
         <div className="mt-8">
-          <Link to="/" className="btn-forest">Return Home</Link>
+          <Link to="/" className="btn-forest">
+            Return Home
+          </Link>
         </div>
       </div>
     </div>
@@ -57,7 +57,9 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
           >
             Try again
           </Button>
-          <a href="/" className="btn-outline">Go home</a>
+          <a href="/" className="btn-outline">
+            Go home
+          </a>
         </div>
       </div>
     </div>
@@ -107,7 +109,7 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
   useEffect(() => {
-    const { data } = supabase.auth.onAuthStateChange(event => {
+    const { data } = supabase.auth.onAuthStateChange((event) => {
       if (!["SIGNED_IN", "SIGNED_OUT", "USER_UPDATED"].includes(event)) return;
       queryClient.removeQueries({ queryKey: ["admin"] });
       void router.invalidate();

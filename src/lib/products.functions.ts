@@ -30,9 +30,7 @@ export const listProducts = createServerFn({ method: "POST" })
     if (data.slug) q = q.eq("slug", data.slug);
     if (data.limit) q = q.limit(data.limit);
 
-    const { data: rows, error } = await q.returns<
-      Omit<Tables<"products">, "created_at">[]
-    >();
+    const { data: rows, error } = await q.returns<Omit<Tables<"products">, "created_at">[]>();
 
     if (error) {
       console.error("Catalog lookup failed");

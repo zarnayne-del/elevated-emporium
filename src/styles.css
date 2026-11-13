@@ -111,7 +111,9 @@
     outline-offset: 4px;
   }
 
-  input, textarea, select {
+  input,
+  textarea,
+  select {
     min-width: 0;
   }
 

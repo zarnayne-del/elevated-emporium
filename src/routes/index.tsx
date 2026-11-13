@@ -75,7 +75,9 @@ function HomePage() {
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
           {isLoading && (
-            <p role="status" className="col-span-full label-mono text-muted-foreground">Loading inventory…</p>
+            <p role="status" className="col-span-full label-mono text-muted-foreground">
+              Loading inventory…
+            </p>
           )}
           {isError && (
             <div role="alert" className="col-span-full border-2 border-forest p-6">
@@ -90,7 +92,9 @@ function HomePage() {
             </div>
           )}
           {!isLoading && !isError && products?.length === 0 && (
-            <p role="status" className="col-span-full text-sm text-muted-foreground">No apparel is currently available. Purchasing remains paused.</p>
+            <p role="status" className="col-span-full text-sm text-muted-foreground">
+              No apparel is currently available. Purchasing remains paused.
+            </p>
           )}
           {products?.map((p) => (
             <Link key={p.id} to="/products/$slug" params={{ slug: p.slug }} className="group">

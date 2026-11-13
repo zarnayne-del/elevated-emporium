@@ -55,7 +55,7 @@ function AdminLayout() {
           <p className="label-mono text-forest/60">
             Sign in with an approved staff account to manage the store.
           </p>
-          <div className="flex gap-3 justify-center">
+          <div className="flex flex-wrap gap-3 justify-center">
             <Link to="/auth" className="btn-forest">Sign In</Link>
             <Link to="/" className="label-mono self-center hover:text-safety">← Back to site</Link>
           </div>
@@ -83,13 +83,14 @@ function AdminLayout() {
           <Link to="/" className="label-mono hover:text-safety">← Back to site</Link>
         </div>
       </header>
-      <nav className="border-b-2 border-forest px-6 md:px-8 flex gap-2">
+      <nav aria-label="Staff navigation" className="border-b-2 border-forest px-3 md:px-8 flex flex-wrap gap-2">
         {tabs.map((t) => {
           const active = t.exact ? pathname === t.to : pathname.startsWith(t.to);
           return (
             <Link
               key={t.to}
               to={t.to}
+              aria-current={active ? "page" : undefined}
               className={`px-5 py-3 font-display uppercase text-[11px] tracking-[0.2em] border-b-2 -mb-[2px] ${
                 active ? "border-safety text-safety" : "border-transparent hover:text-safety"
               }`}
