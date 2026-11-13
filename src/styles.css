@@ -35,6 +35,7 @@
   --color-moss: var(--moss);
   --color-sand: var(--sand);
   --color-safety: var(--safety);
+  --color-safety-text: var(--safety-text);
   --color-ink: var(--ink);
 
   --font-display: "Space Grotesk", sans-serif;
@@ -49,6 +50,7 @@
   --moss: oklch(0.46 0.05 150);
   --sand: oklch(0.95 0.02 90);
   --safety: oklch(0.7 0.21 45);
+  --safety-text: oklch(0.46 0.15 40);
   --ink: oklch(0.15 0.02 150);
 
   --background: var(--sand);
@@ -64,7 +66,7 @@
   --muted: oklch(0.92 0.02 90);
   --muted-foreground: oklch(0.45 0.03 150);
   --accent: var(--safety);
-  --accent-foreground: var(--sand);
+  --accent-foreground: var(--ink);
   --destructive: oklch(0.55 0.22 27);
   --destructive-foreground: var(--sand);
   --border: var(--forest);
@@ -101,7 +103,28 @@
 
   ::selection {
     background-color: var(--color-safety);
-    color: var(--color-sand);
+    color: var(--color-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid currentColor !important;
+    outline-offset: 4px;
+  }
+
+  input, textarea, select {
+    min-width: 0;
+  }
+
+  .skip-link {
+    position: fixed;
+    top: 0.75rem;
+    left: 0.75rem;
+    z-index: 90;
+    transform: translateY(-200%);
+  }
+
+  .skip-link:focus {
+    transform: translateY(0);
   }
 }
 
@@ -122,7 +145,7 @@
     @apply inline-flex items-center justify-center px-8 py-4 border-2 border-forest text-forest font-display uppercase text-xs tracking-[0.2em] hover:bg-forest hover:text-sand transition-colors cursor-pointer;
   }
   .btn-safety {
-    @apply inline-flex items-center justify-center px-8 py-4 bg-safety text-sand font-display uppercase text-xs tracking-[0.2em] hover:brightness-110 transition cursor-pointer;
+    @apply inline-flex items-center justify-center px-8 py-4 bg-safety text-ink font-display uppercase text-xs tracking-[0.2em] hover:brightness-110 transition cursor-pointer;
   }
   .label-mono {
     @apply text-[10px] font-mono uppercase tracking-[0.2em];

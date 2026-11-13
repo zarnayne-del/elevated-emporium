@@ -26,7 +26,7 @@ export function AgeGate() {
   return (
     <Dialog open={open}>
       <DialogContent onEscapeKeyDown={e => e.preventDefault()} onPointerDownOutside={e => e.preventDefault()} className="z-[100] w-[calc(100%-3rem)] max-w-lg bg-sand border-2 border-forest p-8 md:p-14 text-center [&>button]:hidden">
-        <p className="label-mono text-safety mb-4">Restricted Access</p>
+        <p className="label-mono text-safety-text mb-4">Restricted Access</p>
         <DialogTitle
           id="age-gate-title"
           className="font-display text-4xl md:text-5xl uppercase tracking-tighter mb-6 text-forest leading-none"
@@ -50,7 +50,7 @@ export function AgeGate() {
             I am 18+
           </Button>
         </div>
-        <p className="label-mono text-forest/40 mt-8">
+        <p className="label-mono text-muted-foreground mt-8">
           Adults only.
         </p>
       </DialogContent>

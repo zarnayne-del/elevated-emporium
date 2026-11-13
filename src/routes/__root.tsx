@@ -13,6 +13,7 @@ import { AgeGate } from "@/components/AgeGate";
 import { Toaster } from "@/components/ui/sonner";
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
 
 function NotFoundComponent() {
   return (
@@ -34,7 +35,6 @@ function NotFoundComponent() {
 }
 
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
-  console.error(error);
   const router = useRouter();
 
   return (
@@ -48,7 +48,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
           Something went wrong on our end. Try again or head home.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <button
+          <Button
             onClick={() => {
               router.invalidate();
               reset();
@@ -56,7 +56,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
             className="btn-forest"
           >
             Try again
-          </button>
+          </Button>
           <a href="/" className="btn-outline">Go home</a>
         </div>
       </div>
