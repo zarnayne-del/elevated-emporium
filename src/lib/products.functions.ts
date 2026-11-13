@@ -1,6 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import type { Product } from "@/lib/products";
 import type { Tables } from "@/integrations/supabase/types";
 import { isLawfulMerchandise } from "@/lib/security-policy";
 
@@ -40,5 +39,5 @@ export const listProducts = createServerFn({ method: "POST" })
       throw new Error("Could not load inventory.");
     }
 
-    return (rows ?? []).filter(isLawfulMerchandise) satisfies Product[];
+    return (rows ?? []).filter(isLawfulMerchandise);
   });

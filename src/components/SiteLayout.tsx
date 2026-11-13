@@ -1,11 +1,9 @@
 import { Link } from "@tanstack/react-router";
-import { useCart } from "@/lib/cart-store";
 import { useState } from "react";
 import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 
 export function SiteHeader() {
-  const { count } = useCart();
   const [open, setOpen] = useState(false);
   const navLinks = (
     <>
@@ -42,7 +40,7 @@ export function SiteHeader() {
           to="/cart"
           className="text-[11px] font-semibold uppercase tracking-[0.25em] hover:text-safety transition-colors"
         >
-          Cart ({count})
+          Cart
         </Link>
         <Button
           variant="outline"
