@@ -1,9 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import type { Product } from "@/lib/products";
+import type { Tables } from "@/integrations/supabase/types";
 import { isLawfulMerchandise } from "@/lib/security-policy";
 
-export const PRODUCT_COLUMNS =
+export const PRODUCT_COLUMNS: string =
   "id,slug,name,category,subtitle,description,price_cents,color,in_stock,sort_order,image_url,image_path,image_urls";
 
 const ListProductsSchema = z.object({
@@ -30,12 +31,14 @@ export const listProducts = createServerFn({ method: "POST" })
     if (data.slug) q = q.eq("slug", data.slug);
     if (data.limit) q = q.limit(data.limit);
 
-    const { data: rows, error } = await q;
+    const { data: rows, error } = await q.returns<
+      Omit<Tables<"products">, "created_at">[]
+    >();
 
     if (error) {
       console.error("Catalog lookup failed");
       throw new Error("Could not load inventory.");
     }
 
-    return ((rows ?? []) as unknown as Product[]).filter(isLawfulMerchandise);
+    return (rows ?? []).filter(isLawfulMerchandise) satisfies Product[];
   });
